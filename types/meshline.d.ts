@@ -1,8 +1,12 @@
+import type * as THREE from "three";
+
 declare module "meshline" {
-  export class MeshLineGeometry {
-    constructor(points: THREE.Vector3[], widthFn?: (i: number) => number);
+  export class MeshLineGeometry extends THREE.BufferGeometry {
+    constructor(points?: THREE.Vector3[] | number[], widthFn?: (p: number) => number);
+    setPoints(points: THREE.Vector3[] | number[], widthFn?: (p: number) => number): void;
   }
-  export class MeshLineMaterial extends THREE.Material {
+
+  export class MeshLineMaterial extends THREE.ShaderMaterial {
     constructor(options?: {
       color?: THREE.ColorRepresentation;
       lineWidth?: number;
@@ -18,16 +22,9 @@ declare module "meshline" {
       depthTest?: boolean;
       depthWrite?: boolean;
       fog?: boolean;
+      repeat?: THREE.Vector2 | [number, number];
+      resolution?: THREE.Vector2 | [number, number];
     });
-  }
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      meshLineGeometry: React.DetailedHTMLProps<React.HTMLAttributes<THREE.BufferGeometry>, THREE.BufferGeometry>;
-      meshLineMaterial: React.DetailedHTMLProps<React.HTMLAttributes<THREE.Material>, THREE.Material>;
-    }
   }
 }
 

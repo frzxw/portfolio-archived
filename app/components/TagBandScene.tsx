@@ -9,12 +9,32 @@ import {
   CuboidCollider,
   Physics,
   RigidBody,
+  type RigidBodyProps,
   useRopeJoint,
   useSphericalJoint,
 } from "@react-three/rapier";
 import { MeshLineGeometry, MeshLineMaterial } from "meshline";
+import type { GLTF } from "three-stdlib";
+import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 
 extend({ MeshLineGeometry, MeshLineMaterial });
+
+type TagGLTF = GLTF & {
+  nodes: {
+    card: THREE.Mesh;
+    clip: THREE.Mesh;
+    clamp: THREE.Mesh;
+  };
+  materials: {
+    base: THREE.MeshStandardMaterial;
+    metal: THREE.MeshStandardMaterial;
+  };
+};
+
+type PointerCaptureTarget = {
+  setPointerCapture: (pointerId: number) => void;
+  releasePointerCapture: (pointerId: number) => void;
+};
 
 useGLTF.preload(
   "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/5huRVDzcoDwnbgrKUo1Lzs/53b6dd7d6b4ffcdbd338fa60265949e1/tag.glb",
@@ -68,12 +88,12 @@ export default function TagBandScene() {
 }
 
 function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: number }) {
-  const band = useRef<any>(null);
-  const fixed = useRef<any>(null);
-  const j1 = useRef<any>(null);
-  const j2 = useRef<any>(null);
-  const j3 = useRef<any>(null);
-  const card = useRef<any>(null);
+  const band = useRef<THREE.Mesh<MeshLineGeometry>>(null!);
+  const fixed = useRef<RapierRigidBody>(null!);
+  const j1 = useRef<RapierRigidBody & { lerped?: THREE.Vector3 }>(null!);
+  const j2 = useRef<RapierRigidBody & { lerped?: THREE.Vector3 }>(null!);
+  const j3 = useRef<RapierRigidBody>(null!);
+  const card = useRef<RapierRigidBody>(null!);
 
   const vec = new THREE.Vector3();
   const ang = new THREE.Vector3();
@@ -83,28 +103,34 @@ function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: 
   const segmentProps = {
     type: "dynamic" as const,
     canSleep: true,
-    colliders: false,
+    colliders: false as const,
     angularDamping: 2,
     linearDamping: 2,
-  };
+  } satisfies RigidBodyProps;
 
   const { nodes, materials } = useGLTF(
     "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/5huRVDzcoDwnbgrKUo1Lzs/53b6dd7d6b4ffcdbd338fa60265949e1/tag.glb",
-  ) as any;
+  ) as unknown as TagGLTF;
 
   const texture = useTexture(
     "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/SOT1hmCesOHxEYxL7vkoZ/c57b29c85912047c414311723320c16b/band.jpg",
+    (t) => {
+      t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    },
   );
 
   const { width, height } = useThree((state) => state.size);
   const [curve] = useState(
-    () =>
-      new THREE.CatmullRomCurve3([
+    () => {
+      const c = new THREE.CatmullRomCurve3([
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
         new THREE.Vector3(),
-      ]),
+      ]);
+      c.curveType = "chordal";
+      return c;
+    },
   );
 
   const [dragged, drag] = useState<false | THREE.Vector3>(false);
@@ -122,13 +148,13 @@ function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: 
   }, [hovered, dragged]);
 
   useFrame((state, delta) => {
-    if (dragged) {
+    if (dragged && card.current) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
 
-      [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
-      card.current?.setNextKinematicTranslation({
+      [card, j1, j2, j3, fixed].forEach((ref) => ref.current.wakeUp());
+      card.current.setNextKinematicTranslation({
         x: vec.x - dragged.x,
         y: vec.y - dragged.y,
         z: vec.z - dragged.z,
@@ -136,38 +162,36 @@ function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: 
     }
 
     if (fixed.current) {
+      if (!card.current || !j1.current || !j2.current || !j3.current) return;
+
       // Fix most of the jitter when over pulling the card
-      [j1, j2].forEach((ref) => {
-        if (!ref.current.lerped)
-          ref.current.lerped = new THREE.Vector3().copy(ref.current.translation());
+      [j1.current, j2.current].forEach((body) => {
+        if (!body.lerped) body.lerped = new THREE.Vector3().copy(body.translation());
 
         const clampedDistance = Math.max(
           0.1,
-          Math.min(1, ref.current.lerped.distanceTo(ref.current.translation())),
+          Math.min(1, body.lerped.distanceTo(body.translation())),
         );
 
-        ref.current.lerped.lerp(
-          ref.current.translation(),
+        body.lerped.lerp(
+          body.translation(),
           delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
         );
       });
 
       // Calculate catmul curve
       curve.points[0].copy(j3.current.translation());
-      curve.points[1].copy(j2.current.lerped);
-      curve.points[2].copy(j1.current.lerped);
+      curve.points[1].copy(j2.current.lerped!);
+      curve.points[2].copy(j1.current.lerped!);
       curve.points[3].copy(fixed.current.translation());
       band.current.geometry.setPoints(curve.getPoints(32));
 
       // Tilt it back towards the screen
       ang.copy(card.current.angvel());
       rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
     }
   });
-
-  curve.curveType = "chordal";
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   return (
     <>
@@ -199,14 +223,15 @@ function Band({ maxSpeed = 50, minSpeed = 10 }: { maxSpeed?: number; minSpeed?: 
             onPointerOver={() => hover(true)}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => (
-              (e.target as any).releasePointerCapture(e.pointerId), drag(false)
+              (e.target as unknown as PointerCaptureTarget).releasePointerCapture(e.pointerId),
+              drag(false)
             )}
             onPointerDown={(e) => (
-              (e.target as any).setPointerCapture(e.pointerId),
+              (e.target as unknown as PointerCaptureTarget).setPointerCapture(e.pointerId),
               drag(
                 new THREE.Vector3()
                   .copy(e.point)
-                  .sub(vec.copy(card.current.translation())),
+                  .sub(vec.copy(card.current?.translation() ?? new THREE.Vector3())),
               )
             )}
           >
