@@ -68,7 +68,7 @@ export function Experiences({ items, interactionDisabled = false }: ExperiencesP
               if (interactionDisabled) return;
               setActiveKey(null);
             }}
-            className="row-hover px-4 py-3"
+            className={`${!interactionDisabled ? "row-hover" : ""} px-4 py-3 transition-colors`}
           >
             <div className="flex items-center justify-between gap-6">
               <div className="min-w-0">
