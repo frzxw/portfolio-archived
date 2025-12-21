@@ -1,6 +1,6 @@
 "use client";
 
-import type { Experience } from "../../../mock/portfolio";
+import type { Experience } from "../../../data/portfolio";
 import { useEffect, useState, useCallback } from "react";
 
 type ExperiencesProps = {

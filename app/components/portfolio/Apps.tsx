@@ -1,4 +1,4 @@
-import type { AppItem } from "../../../mock/portfolio";
+import type { AppItem } from "../../../data/portfolio";
 import { TextLink } from "../ui/TextLink";
 
 function formatStack(stack: string[]) {

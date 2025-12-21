@@ -1,4 +1,4 @@
-import type { PersonalProject } from "../../../mock/portfolio";
+import type { PersonalProject } from "../../../data/portfolio";
 import { TextLink } from "../ui/TextLink";
 
 type PersonalProjectsProps = {

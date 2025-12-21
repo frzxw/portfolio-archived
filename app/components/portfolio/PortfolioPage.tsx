@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { portfolio } from "../../../mock/portfolio";
+import { portfolio } from "../../../data/portfolio";
 import { Hero } from "./Hero";
 import { Section } from "../ui/Section";
 

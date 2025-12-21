@@ -1,4 +1,4 @@
-import type { ResearchItem } from "../../../mock/portfolio";
+import type { ResearchItem } from "../../../data/portfolio";
 import { TextLink } from "../ui/TextLink";
 
 type ResearchProps = {

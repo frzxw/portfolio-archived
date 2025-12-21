@@ -1,6 +1,9 @@
-import type { Project } from "../../../mock/portfolio";
+"use client";
+
+import type { Project } from "../../../data/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
 import { TechIcon } from "../icons/TechIcon";
+import { domAnimation, LazyMotion, m } from "framer-motion";
 
 function ProjectCard({ project }: { project: Project }) {
   const primaryHref = project.repo ?? project.href;
@@ -9,12 +12,15 @@ function ProjectCard({ project }: { project: Project }) {
     : `Open ${project.title} project (opens in a new tab)`;
 
   return (
-    <a
+    <m.a
       href={primaryHref}
       target="_blank"
       rel="noopener noreferrer"
       className="block"
       aria-label={ariaLabel}
+      whileHover={{ y: -5, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
     >
       <div className="card flex h-72 w-72 shrink-0 flex-col p-4 sm:h-80 sm:w-80">
         <div className="flex items-start justify-between gap-3">
@@ -36,7 +42,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
 
         <div className="mt-auto pt-4">
-          <div className="flex items-center gap-2 text-(--color-text-secondary)">
+          <m.div className="flex items-center gap-2 text-(--color-text-secondary)">
             {project.stackSlugs.slice(0, 4).map((slug) => (
               <span
                 key={slug}
@@ -46,10 +52,10 @@ function ProjectCard({ project }: { project: Project }) {
                 <TechIcon slug={slug} size={16} />
               </span>
             ))}
-          </div>
+          </m.div>
         </div>
       </div>
-    </a>
+    </m.a>
   );
 }
 
@@ -62,12 +68,14 @@ export function InfiniteProjectsCarousel({ items }: InfiniteProjectsCarouselProp
   const repeated = [...items, ...items];
 
   return (
-    <div className="marquee -mx-4 py-4 sm:-mx-6 sm:py-6">
-      <div className="marqueeTrack flex gap-3 px-4 sm:gap-4 sm:px-6">
-        {repeated.map((p, idx) => (
-          <ProjectCard key={`${p.href}-${idx}`} project={p} />
-        ))}
+    <LazyMotion features={domAnimation}>
+      <div className="marquee -mx-4 py-4 sm:-mx-6 sm:py-6">
+        <div className="marqueeTrack flex gap-3 px-4 sm:gap-4 sm:px-6">
+          {repeated.map((p, idx) => (
+            <ProjectCard key={`${p.href}-${idx}`} project={p} />
+          ))}
+        </div>
       </div>
-    </div>
+    </LazyMotion>
   );
 }

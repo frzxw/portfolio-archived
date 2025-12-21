@@ -1,4 +1,4 @@
-import type { OpenSourceItem } from "../../../mock/portfolio";
+import type { OpenSourceItem } from "../../../data/portfolio";
 import { TextLink } from "../ui/TextLink";
 
 function formatStars(stars: number) {

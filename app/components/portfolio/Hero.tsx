@@ -2,9 +2,10 @@
 
 import dynamic from "next/dynamic";
 import { TextLink } from "../ui/TextLink";
-import type { PortfolioData } from "../../../mock/portfolio";
+import type { PortfolioData } from "../../../data/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
 import { useCallback, useState, useEffect, Suspense } from "react";
+import { domAnimation, LazyMotion, m } from "framer-motion";
 
 // Dynamically import heavy components to reduce initial JS bundle
 // Lanyard: ~500KB+ of Three.js/R3F code
@@ -79,39 +80,71 @@ export function Hero({ data }: HeroProps) {
 
       <div className="relative z-40">
         <div className="centered section">
-          <div className="flex items-start justify-between gap-6 pt-6 sm:pt-8">
-            <h1 className="pointer-events-auto text-balance text-[clamp(2.75rem,7vw,4.75rem)] font-bold tracking-[-0.03em]">
-              {data.name}
-            </h1>
-
-            <div className="pointer-events-auto">
-              <ThemeToggle />
-            </div>
-          </div>
-
-          <nav className="pointer-events-auto mt-2 flex flex-wrap items-center gap-2 text-xs text-(--color-text-secondary) sm:gap-3 sm:text-sm">
-            {data.socials.map((s) => (
-              <TextLink
-                key={s.href}
-                href={s.href}
-                ariaLabel={`Open ${s.label} profile (opens in a new tab)`}
-                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 row-hover"
+          <LazyMotion features={domAnimation}>
+            <div className="flex items-start justify-between gap-6 pt-6 sm:pt-8">
+              <m.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="pointer-events-auto text-balance text-[clamp(2.75rem,7vw,4.75rem)] font-bold tracking-[-0.03em]"
               >
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)">
-                  <BrandIcon name={s.icon} size={14} />
-                </span>
-                <span className="font-medium">{s.label}</span>
-              </TextLink>
-            ))}
-          </nav>
+                {data.name}
+              </m.h1>
 
-          <div className="pointer-events-auto mt-6 sm:mt-8">
-            <div className="section-title">Experiences</div>
-            <Experiences
-              items={data.experiences}
-              interactionDisabled={lanyardInteracting}
-            />
-          </div>
+              <m.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="pointer-events-auto"
+              >
+                <ThemeToggle />
+              </m.div>
+            </div>
+
+            <m.nav
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="pointer-events-auto mt-2 flex flex-wrap items-center gap-2 text-xs text-(--color-text-secondary) sm:gap-3 sm:text-sm"
+            >
+              {data.socials.map((s, i) => (
+                <m.div
+                  key={s.href}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
+                >
+                  <TextLink
+                    href={s.href}
+                    ariaLabel={`Open ${s.label} profile (opens in a new tab)`}
+                    className="inline-flex items-center gap-2 rounded-lg px-3 py-2 row-hover"
+                  >
+                    <m.span
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)"
+                    >
+                      <BrandIcon name={s.icon} size={14} />
+                    </m.span>
+                    <span className="font-medium">{s.label}</span>
+                  </TextLink>
+                </m.div>
+              ))}
+            </m.nav>
+
+            <m.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="pointer-events-auto mt-6 sm:mt-8"
+            >
+              <div className="section-title">Experiences</div>
+              <Experiences
+                items={data.experiences}
+                interactionDisabled={lanyardInteracting}
+              />
+            </m.div>
+          </LazyMotion>
         </div>
       </div>
     </section>
