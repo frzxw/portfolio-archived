@@ -49,18 +49,29 @@ export type LanyardProps = {
 };
 
 export default function Lanyard({ className, style }: LanyardProps) {
+    const eventSource = typeof window !== "undefined" ? document.body : undefined;
+
     return (
         <div
             className={className}
-            style={{ pointerEvents: "auto", touchAction: "none", ...style }}
+            style={{ pointerEvents: "none", ...style }}
         >
             <Canvas
                 camera={{ position: [0, 0, 13], fov: 25 }}
                 gl={{ alpha: true, antialias: true }}
+                eventSource={eventSource}
+                eventPrefix="client"
                 onCreated={({ gl }) => {
                     gl.setClearColor(0x000000, 0);
                 }}
-                style={{ width: "100%", height: "100%", touchAction: "none" }}
+                style={{
+                    position: "absolute",
+                    inset: 0,
+                    width: "100%",
+                    height: "100%",
+                    touchAction: "none",
+                    pointerEvents: "none",
+                }}
             >
                 <ambientLight intensity={Math.PI} />
                 <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
