@@ -63,9 +63,13 @@ export type PortfolioData = {
   personalProjects: PersonalProject[];
 };
 
+const PERSON_NAME = "Fariz Wibisono";
+const TAGLINE =
+  "Full‑Stack Engineer";
+
 export const portfolio: PortfolioData = {
-  name: "Fariz Wibisono",
-  tagline: "Full‑Stack Engineer",
+  name: PERSON_NAME,
+  tagline: TAGLINE,
   socials: [
     {
       label: "GitHub",
