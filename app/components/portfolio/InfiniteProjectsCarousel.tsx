@@ -5,12 +5,15 @@ import { TechIcon } from "../icons/TechIcon";
 
 function ProjectCard({ project }: { project: Project }) {
   const primaryHref = project.repo ?? project.href;
+  const ariaLabel = project.repo
+    ? `Open ${project.title} repository on GitHub (opens in a new tab)`
+    : `Open ${project.title} project (opens in a new tab)`;
 
   return (
     <TextLink
       href={primaryHref}
       className="block"
-      ariaLabel={`${project.title} GitHub`}
+      ariaLabel={ariaLabel}
     >
       <div className="card flex h-72 w-72 shrink-0 flex-col p-4 sm:h-80 sm:w-80">
         <div className="flex items-start justify-between gap-3">

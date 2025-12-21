@@ -12,6 +12,7 @@ export function Research({ items }: ResearchProps) {
         <TextLink
           key={x.href}
           href={x.href}
+          ariaLabel={`Open research item: ${x.title} (opens in a new tab)`}
           className="row-hover block px-4 py-3"
         >
           <div className="flex items-start justify-between gap-6">

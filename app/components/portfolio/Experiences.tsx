@@ -14,7 +14,13 @@ export function Experiences({ items, interactionDisabled = false }: ExperiencesP
   const [activeKey, setActiveKey] = useState<string | null>(null);
 
   useEffect(() => {
-    if (interactionDisabled) setActiveKey(null);
+    if (!interactionDisabled) return;
+
+    const raf = requestAnimationFrame(() => {
+      setActiveKey(null);
+    });
+
+    return () => cancelAnimationFrame(raf);
   }, [interactionDisabled]);
 
   return (

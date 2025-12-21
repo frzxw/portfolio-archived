@@ -43,7 +43,7 @@ export function Hero({ data }: HeroProps) {
               <TextLink
                 key={s.href}
                 href={s.href}
-                ariaLabel={s.label}
+                ariaLabel={`Open ${s.label} profile (opens in a new tab)`}
                 className="inline-flex items-center gap-2 rounded-lg px-3 py-2 row-hover"
               >
                 <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)">

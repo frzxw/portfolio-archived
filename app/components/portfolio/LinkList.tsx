@@ -11,6 +11,7 @@ export function LinkList({ items }: LinkListProps) {
         <TextLink
           key={x.href}
           href={x.href}
+          ariaLabel={`Open link: ${x.title} (opens in a new tab)`}
           className="row-hover block px-4 py-3 font-semibold"
         >
           {x.title}
