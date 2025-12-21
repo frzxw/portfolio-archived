@@ -3,11 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {},
 
-  // Enable production source maps for debugging and Lighthouse insights
-  productionBrowserSourceMaps: true,
-
-  // Disable source maps in production to reduce bundle size (comment above line)
-  // productionBrowserSourceMaps: false,
+  // Disable source maps in production to reduce bundle size and latency
+  productionBrowserSourceMaps: false,
 
   // Enable React strict mode
   reactStrictMode: true,

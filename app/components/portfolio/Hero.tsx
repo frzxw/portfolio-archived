@@ -25,23 +25,29 @@ export function Hero({ data }: HeroProps) {
   const [lanyardInteracting, setLanyardInteracting] = useState(false);
   const [showLanyard, setShowLanyard] = useState(false);
 
-  // Only load Lanyard on desktop to save ~500KB+ JS on mobile
-  // Also delay until browser is idle to prioritize LCP content
+  // Delay Lanyard loading to prioritize LCP and reduce TBT
+  // Mobile gets a longer delay to allow LCP to complete first
   useEffect(() => {
-    // Skip Lanyard on mobile for better performance
     const isMobile = window.matchMedia(IS_MOBILE_QUERY).matches;
-    if (isMobile) return;
 
-    // Use requestIdleCallback if available, otherwise setTimeout
-    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
-    const id = scheduleLoad(() => setShowLanyard(true), { timeout: 3000 });
+    // Different delay strategies for mobile vs desktop
+    // Mobile: longer delay (2.5s) to fully prioritize LCP
+    // Desktop: shorter delay (1s) since it has more resources
+    const baseDelay = isMobile ? 2500 : 1000;
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 300));
+    const idleId = scheduleLoad(() => {
+      timeoutId = setTimeout(() => setShowLanyard(true), baseDelay);
+    }, { timeout: 5000 });
 
     return () => {
       if (window.cancelIdleCallback) {
-        window.cancelIdleCallback(id as number);
+        window.cancelIdleCallback(idleId as number);
       } else {
-        clearTimeout(id as unknown as number);
+        clearTimeout(idleId as unknown as number);
       }
+      clearTimeout(timeoutId);
     };
   }, []);
 

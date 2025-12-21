@@ -52,6 +52,11 @@ export type LanyardProps = {
 export default function Lanyard({ className, style, onInteractionChange }: LanyardProps) {
     const eventSource = typeof window !== "undefined" ? document.body : undefined;
 
+    // Detect mobile for performance optimizations
+    const isMobile = typeof window !== "undefined"
+        ? window.matchMedia("(max-width: 767px)").matches
+        : false;
+
     return (
         <div
             className={className}
@@ -67,7 +72,7 @@ export default function Lanyard({ className, style, onInteractionChange }: Lanya
                     depth: true,
                 }}
                 frameloop="demand" // Only render when needed
-                dpr={[1, 1.5]} // Limit pixel ratio for performance
+                dpr={isMobile ? 1 : [1, 1.5]} // Lower DPR on mobile
                 eventSource={eventSource}
                 eventPrefix="client"
                 onCreated={({ gl }) => {
@@ -82,13 +87,13 @@ export default function Lanyard({ className, style, onInteractionChange }: Lanya
                     pointerEvents: "none",
                 }}
             >
-                <ambientLight intensity={Math.PI} />
-                <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 120} paused={false}>
+                <ambientLight intensity={isMobile ? 2 : Math.PI} />
+                <Physics interpolate gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 60 : 1 / 120} paused={false}>
                     <LanyardRig onInteractionChange={onInteractionChange} />
                 </Physics>
                 {/* Simplified lighting for performance */}
                 <directionalLight position={[5, 5, 5]} intensity={1.5} />
-                <directionalLight position={[-5, -5, 5]} intensity={0.5} />
+                {!isMobile && <directionalLight position={[-5, -5, 5]} intensity={0.5} />}
             </Canvas>
         </div>
     );
