@@ -1,12 +1,18 @@
 "use client";
 
-import Lanyard from "../Lanyard";
+import dynamic from "next/dynamic";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { TextLink } from "../ui/TextLink";
 import type { PortfolioData } from "../../../mock/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
 import { Experiences } from "./Experiences";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, Suspense } from "react";
+
+// Dynamically import Lanyard to defer heavy Three.js/R3F bundle loading
+// This moves ~500KB+ of JS out of the critical rendering path
+const Lanyard = dynamic(() => import("../Lanyard"), {
+  ssr: false, // Three.js/R3F requires client-side only
+});
 
 type HeroProps = {
   data: Pick<PortfolioData, "name" | "socials" | "experiences">;
@@ -14,17 +20,28 @@ type HeroProps = {
 
 export function Hero({ data }: HeroProps) {
   const [lanyardInteracting, setLanyardInteracting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Ensure component is mounted on client before rendering Lanyard
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const handleLanyardInteractionChange = useCallback((isInteracting: boolean) => {
     setLanyardInteracting(isInteracting);
   }, []);
 
   return (
     <section className="relative w-full">
-      <Lanyard
-        className="absolute inset-0 z-50"
-        style={{ height: "100svh" }}
-        onInteractionChange={handleLanyardInteractionChange}
-      />
+      {isMounted && (
+        <Suspense fallback={null}>
+          <Lanyard
+            className="absolute inset-0 z-50"
+            style={{ height: "100svh" }}
+            onInteractionChange={handleLanyardInteractionChange}
+          />
+        </Suspense>
+      )}
 
       <div className="relative z-40">
         <div className="centered section">

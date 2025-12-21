@@ -1,21 +1,21 @@
-    "use client";
+"use client";
 
-    import * as THREE from "three";
-    import { useEffect, useRef, useState, type CSSProperties } from "react";
-    import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
-    import { Environment, Lightformer, useGLTF, useTexture } from "@react-three/drei";
-    import {
-        BallCollider,
-        CuboidCollider,
-        Physics,
-        RigidBody,
-        type RigidBodyProps,
-        useRopeJoint,
-        useSphericalJoint,
-    } from "@react-three/rapier";
-    import { MeshLineGeometry, MeshLineMaterial } from "meshline";
-    import type { GLTF } from "three-stdlib";
-    import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
+import * as THREE from "three";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { Canvas, extend, useFrame, useThree, invalidate } from "@react-three/fiber";
+import { useGLTF, useTexture } from "@react-three/drei";
+import {
+    BallCollider,
+    CuboidCollider,
+    Physics,
+    RigidBody,
+    type RigidBodyProps,
+    useRopeJoint,
+    useSphericalJoint,
+} from "@react-three/rapier";
+import { MeshLineGeometry, MeshLineMaterial } from "meshline";
+import type { GLTF } from "three-stdlib";
+import type { RigidBody as RapierRigidBody } from "@dimforge/rapier3d-compat";
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -59,7 +59,15 @@ export default function Lanyard({ className, style, onInteractionChange }: Lanya
         >
             <Canvas
                 camera={{ position: [0, 0, 13], fov: 25 }}
-                gl={{ alpha: true, antialias: true }}
+                gl={{
+                    alpha: true,
+                    antialias: false, // Disable for performance
+                    powerPreference: "high-performance",
+                    stencil: false,
+                    depth: true,
+                }}
+                frameloop="demand" // Only render when needed
+                dpr={[1, 1.5]} // Limit pixel ratio for performance
                 eventSource={eventSource}
                 eventPrefix="client"
                 onCreated={({ gl }) => {
@@ -75,39 +83,12 @@ export default function Lanyard({ className, style, onInteractionChange }: Lanya
                 }}
             >
                 <ambientLight intensity={Math.PI} />
-                <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+                <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 120} paused={false}>
                     <LanyardRig onInteractionChange={onInteractionChange} />
                 </Physics>
-                <Environment blur={0.75}>
-                    <Lightformer
-                        intensity={2}
-                        color="white"
-                        position={[0, -1, 5]}
-                        rotation={[0, 0, Math.PI / 3]}
-                        scale={[100, 0.1, 1]}
-                    />
-                    <Lightformer
-                        intensity={3}
-                        color="white"
-                        position={[-1, -1, 1]}
-                        rotation={[0, 0, Math.PI / 3]}
-                        scale={[100, 0.1, 1]}
-                    />
-                    <Lightformer
-                        intensity={3}
-                        color="white"
-                        position={[1, 1, 1]}
-                        rotation={[0, 0, Math.PI / 3]}
-                        scale={[100, 0.1, 1]}
-                    />
-                    <Lightformer
-                        intensity={10}
-                        color="white"
-                        position={[-10, 0, 14]}
-                        rotation={[0, Math.PI / 2, Math.PI / 3]}
-                        scale={[100, 10, 1]}
-                    />
-                </Environment>
+                {/* Simplified lighting for performance */}
+                <directionalLight position={[5, 5, 5]} intensity={1.5} />
+                <directionalLight position={[-5, -5, 5]} intensity={0.5} />
             </Canvas>
         </div>
     );
@@ -158,7 +139,7 @@ function LanyardRig({
     } satisfies RigidBodyProps;
 
     const { nodes, materials } = useGLTF(
-    "/assets/tag.glb",
+        "/assets/tag.glb",
     ) as unknown as TagGLTF;
 
     const texture = useTexture(
@@ -236,6 +217,9 @@ function LanyardRig({
     }, [dragged]);
 
     useFrame((state, delta) => {
+        // Request a new frame when physics is active (for demand frameloop)
+        invalidate();
+
         if (dragged && card.current) {
             vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
             dir.copy(vec).sub(state.camera.position).normalize();
@@ -270,12 +254,12 @@ function LanyardRig({
                 );
             });
 
-            // Calculate catmul curve
+            // Calculate catmul curve with reduced resolution for performance
             curve.points[0].copy(j3.current.translation());
             curve.points[1].copy(j2.current.lerped!);
             curve.points[2].copy(j1.current.lerped!);
             curve.points[3].copy(fixed.current.translation());
-            band.current.geometry.setPoints(curve.getPoints(32));
+            band.current.geometry.setPoints(curve.getPoints(16));
 
             // Tilt it back towards the screen
             if (!dragged && !isCardSleeping) {
@@ -373,7 +357,8 @@ function LanyardRig({
 
             <group name="band">
                 <mesh ref={band}>
-                    <meshLineGeometry />
+                    {/* Initialize with valid points to prevent NaN bounding box errors */}
+                    <meshLineGeometry args={[[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]} />
                     <meshLineMaterial
                         color="white"
                         depthTest={false}
