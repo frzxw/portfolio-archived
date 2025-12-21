@@ -138,9 +138,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* DNS prefetch for faster resource loading */}
-        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+        {/* Preconnect for faster font loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Prefetch 3D assets for Lanyard (loaded after delay) */}
+        <link rel="prefetch" href="/assets/tag.glb" as="fetch" crossOrigin="anonymous" />
+        <link rel="prefetch" href="/assets/band.avif" as="image" />
 
         {/* Inline theme script to prevent FOUC - runs before paint */}
         <script

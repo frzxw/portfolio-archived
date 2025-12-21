@@ -26,20 +26,20 @@ export function Hero({ data }: HeroProps) {
   const [showLanyard, setShowLanyard] = useState(false);
 
   // Delay Lanyard loading to prioritize LCP and reduce TBT
-  // Mobile gets a longer delay to allow LCP to complete first
+  // TBT measures blocking during first 5s, so we delay significantly
   useEffect(() => {
     const isMobile = window.matchMedia(IS_MOBILE_QUERY).matches;
 
-    // Different delay strategies for mobile vs desktop
-    // Mobile: longer delay (2.5s) to fully prioritize LCP
-    // Desktop: shorter delay (1s) since it has more resources
-    const baseDelay = isMobile ? 2500 : 1000;
+    // Delay strategies optimized for TBT measurement window
+    // Desktop: 2.5s delay to push Three.js loading outside TBT window
+    // Mobile: 3s delay for even more time to complete LCP
+    const baseDelay = isMobile ? 3000 : 2500;
 
     let timeoutId: ReturnType<typeof setTimeout>;
-    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 300));
+    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 500));
     const idleId = scheduleLoad(() => {
       timeoutId = setTimeout(() => setShowLanyard(true), baseDelay);
-    }, { timeout: 5000 });
+    }, { timeout: 6000 });
 
     return () => {
       if (window.cancelIdleCallback) {
