@@ -1,18 +1,30 @@
+"use client";
+
 import Lanyard from "../Lanyard";
 import { ThemeToggle } from "../theme/ThemeToggle";
 import { TextLink } from "../ui/TextLink";
 import type { PortfolioData } from "../../../mock/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
 import { Experiences } from "./Experiences";
+import { useCallback, useState } from "react";
 
 type HeroProps = {
   data: Pick<PortfolioData, "name" | "socials" | "experiences">;
 };
 
 export function Hero({ data }: HeroProps) {
+  const [lanyardInteracting, setLanyardInteracting] = useState(false);
+  const handleLanyardInteractionChange = useCallback((isInteracting: boolean) => {
+    setLanyardInteracting(isInteracting);
+  }, []);
+
   return (
     <section className="relative w-full">
-      <Lanyard className="absolute inset-0 z-50" style={{ height: "100svh" }} />
+      <Lanyard
+        className="absolute inset-0 z-50"
+        style={{ height: "100svh" }}
+        onInteractionChange={handleLanyardInteractionChange}
+      />
 
       <div className="relative z-40">
         <div className="centered section">
@@ -44,7 +56,10 @@ export function Hero({ data }: HeroProps) {
 
           <div className="pointer-events-auto mt-6 sm:mt-8">
             <div className="section-title">Experiences</div>
-            <Experiences items={data.experiences} />
+            <Experiences
+              items={data.experiences}
+              interactionDisabled={lanyardInteracting}
+            />
           </div>
         </div>
       </div>

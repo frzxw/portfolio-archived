@@ -46,9 +46,10 @@ useTexture.preload(
 export type LanyardProps = {
     className?: string;
     style?: CSSProperties;
+    onInteractionChange?: (isInteracting: boolean) => void;
 };
 
-export default function Lanyard({ className, style }: LanyardProps) {
+export default function Lanyard({ className, style, onInteractionChange }: LanyardProps) {
     const eventSource = typeof window !== "undefined" ? document.body : undefined;
 
     return (
@@ -75,7 +76,7 @@ export default function Lanyard({ className, style }: LanyardProps) {
             >
                 <ambientLight intensity={Math.PI} />
                 <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-                    <LanyardRig />
+                    <LanyardRig onInteractionChange={onInteractionChange} />
                 </Physics>
                 <Environment blur={0.75}>
                     <Lightformer
@@ -117,6 +118,7 @@ type LanyardRigProps = {
     minSpeed?: number;
     position?: [number, number, number];
     scale?: number;
+    onInteractionChange?: (isInteracting: boolean) => void;
 };
 
 function LanyardRig({
@@ -124,6 +126,7 @@ function LanyardRig({
     minSpeed = 10,
     position = [1.2, 4, 0],
     scale,
+    onInteractionChange,
 }: LanyardRigProps) {
     const band = useRef<THREE.Mesh<MeshLineGeometry>>(null!);
     const fixed = useRef<RapierRigidBody>(null!);
@@ -193,6 +196,11 @@ function LanyardRig({
     const [dragged, drag] = useState<false | THREE.Vector3>(false);
     const [hovered, hover] = useState(false);
 
+    useEffect(() => {
+        onInteractionChange?.(hovered || Boolean(dragged));
+        return () => onInteractionChange?.(false);
+    }, [hovered, dragged, onInteractionChange]);
+
     useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1 * s]);
     useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1 * s]);
     useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1 * s]);
@@ -203,6 +211,20 @@ function LanyardRig({
         document.body.style.cursor = dragged ? "grabbing" : "grab";
         return () => void (document.body.style.cursor = "auto");
     }, [hovered, dragged]);
+
+    useEffect(() => {
+        if (!dragged) return;
+        // Avoid selecting/highlighting underlying page text while dragging.
+        document.body.style.userSelect = "none";
+        (document.body.style as CSSStyleDeclaration & { WebkitUserSelect?: string }).WebkitUserSelect =
+            "none";
+
+        return () => {
+            document.body.style.userSelect = "";
+            (document.body.style as CSSStyleDeclaration & { WebkitUserSelect?: string }).WebkitUserSelect =
+                "";
+        };
+    }, [dragged]);
 
     useFrame((state, delta) => {
         if (dragged && card.current) {
@@ -284,12 +306,14 @@ function LanyardRig({
                         onPointerOut={() => hover(false)}
                         onPointerUp={(e) => {
                             e.stopPropagation();
+                            e.nativeEvent.preventDefault();
                             const target = e.nativeEvent.target as unknown as PointerCaptureTarget;
                             target?.releasePointerCapture?.(e.pointerId);
                             drag(false);
                         }}
                         onPointerDown={(e) => {
                             e.stopPropagation();
+                            e.nativeEvent.preventDefault();
                             const target = e.nativeEvent.target as unknown as PointerCaptureTarget;
                             target?.setPointerCapture?.(e.pointerId);
                             drag(
@@ -302,6 +326,7 @@ function LanyardRig({
                         }}
                         onPointerCancel={(e) => {
                             e.stopPropagation();
+                            e.nativeEvent.preventDefault();
                             const target = e.nativeEvent.target as unknown as PointerCaptureTarget;
                             target?.releasePointerCapture?.(e.pointerId);
                             drag(false);

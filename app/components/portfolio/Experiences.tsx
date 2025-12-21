@@ -3,14 +3,19 @@
 import type { Experience } from "../../../mock/portfolio";
 import { TextLink } from "../ui/TextLink";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type ExperiencesProps = {
   items: Experience[];
+  interactionDisabled?: boolean;
 };
 
-export function Experiences({ items }: ExperiencesProps) {
+export function Experiences({ items, interactionDisabled = false }: ExperiencesProps) {
   const [activeKey, setActiveKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (interactionDisabled) setActiveKey(null);
+  }, [interactionDisabled]);
 
   return (
     <div className="flex flex-col gap-2">
@@ -21,10 +26,22 @@ export function Experiences({ items }: ExperiencesProps) {
         const content = (
           <motion.div
             layout
-            onMouseEnter={() => setActiveKey(key)}
-            onMouseLeave={() => setActiveKey(null)}
-            onFocus={() => setActiveKey(key)}
-            onBlur={() => setActiveKey(null)}
+            onMouseEnter={() => {
+              if (interactionDisabled) return;
+              setActiveKey(key);
+            }}
+            onMouseLeave={() => {
+              if (interactionDisabled) return;
+              setActiveKey(null);
+            }}
+            onFocus={() => {
+              if (interactionDisabled) return;
+              setActiveKey(key);
+            }}
+            onBlur={() => {
+              if (interactionDisabled) return;
+              setActiveKey(null);
+            }}
             className="row-hover px-4 py-3"
           >
             <div className="flex items-center justify-between gap-6">
