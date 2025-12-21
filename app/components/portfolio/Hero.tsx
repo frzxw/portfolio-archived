@@ -5,14 +5,19 @@ import { ThemeToggle } from "../theme/ThemeToggle";
 import { TextLink } from "../ui/TextLink";
 import type { PortfolioData } from "../../../mock/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
-import { Experiences } from "./Experiences";
 import { useCallback, useState, useEffect, Suspense } from "react";
 
-// Dynamically import Lanyard to defer heavy Three.js/R3F bundle loading
-// This moves ~500KB+ of JS out of the critical rendering path
+// Dynamically import heavy components to reduce initial JS bundle
+// Lanyard: ~500KB+ of Three.js/R3F code
 const Lanyard = dynamic(() => import("../Lanyard"), {
-  ssr: false, // Three.js/R3F requires client-side only
+  ssr: false,
 });
+
+// Experiences has interaction handlers - defer loading
+const Experiences = dynamic(
+  () => import("./Experiences").then(m => ({ default: m.Experiences })),
+  { ssr: false, loading: () => <div className="h-48 animate-pulse" /> }
+);
 
 type HeroProps = {
   data: Pick<PortfolioData, "name" | "socials" | "experiences">;
