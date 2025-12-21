@@ -185,6 +185,36 @@ body {
   vertical-align: middle;
 }
 
+/* Theme toggle icon swapping (avoid hydration mismatch) */
+.theme-icon {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity var(--duration-fast) var(--ease-out),
+    transform var(--duration-fast) var(--ease-out);
+}
+
+.theme-icon--sun {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
+.theme-icon--moon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html[data-theme="dark"] .theme-icon--sun {
+  opacity: 1;
+  transform: scale(1);
+}
+
+html[data-theme="dark"] .theme-icon--moon {
+  opacity: 0;
+  transform: scale(0.92);
+}
+
 /* Infinite carousel */
 @keyframes marquee-left {
   from {

@@ -9,7 +9,6 @@ export function Providers({ children }: PropsWithChildren) {
       attribute="data-theme"
       defaultTheme="system"
       enableSystem
-      disableTransitionOnChange
     >
       {children}
     </ThemeProvider>
