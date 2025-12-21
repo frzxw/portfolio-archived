@@ -130,11 +130,11 @@ body {
   width: 100%;
   max-width: 880px;
   margin-inline: auto;
-  padding-inline: var(--space-6);
+  padding-inline: clamp(1rem, 3vw, var(--space-6));
 }
 
 .section {
-  padding-block: var(--space-8);
+  padding-block: clamp(var(--space-6), 4vw, var(--space-8));
 }
 
 .section-title {
@@ -206,7 +206,7 @@ body {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 72px;
+  width: clamp(40px, 10vw, 72px);
   pointer-events: none;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);

@@ -123,7 +123,7 @@ function LanyardRig({
     maxSpeed = 50,
     minSpeed = 10,
     position = [1.2, 4, 0],
-    scale = 0.75,
+    scale,
 }: LanyardRigProps) {
     const band = useRef<THREE.Mesh<MeshLineGeometry>>(null!);
     const fixed = useRef<RapierRigidBody>(null!);
@@ -140,7 +140,6 @@ function LanyardRig({
     const px = position[0];
     const py = position[1];
     const pz = position[2];
-    const s = scale;
     const sp = (x: number, y: number, z: number): [number, number, number] => [
         px + x * s,
         py + y * s,
@@ -167,6 +166,19 @@ function LanyardRig({
     );
 
     const { width, height } = useThree((state) => state.size);
+
+    const responsiveScale =
+        width < 480
+            ? 0.56
+            : width < 640
+                ? 0.6
+                : width < 768
+                    ? 0.65
+                    : width < 1024
+                        ? 0.7
+                        : 0.75;
+
+    const s = scale ?? responsiveScale;
     const [curve] = useState(() => {
         const c = new THREE.CatmullRomCurve3([
             new THREE.Vector3(),

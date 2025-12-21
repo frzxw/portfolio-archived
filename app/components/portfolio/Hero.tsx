@@ -16,8 +16,8 @@ export function Hero({ data }: HeroProps) {
 
       <div className="relative z-40">
         <div className="centered section">
-          <div className="flex items-start justify-between gap-6 pt-8">
-            <h1 className="pointer-events-auto text-balance text-[clamp(3.25rem,6vw,4.75rem)] font-bold tracking-[-0.03em]">
+          <div className="flex items-start justify-between gap-6 pt-6 sm:pt-8">
+            <h1 className="pointer-events-auto text-balance text-[clamp(2.75rem,7vw,4.75rem)] font-bold tracking-[-0.03em]">
               {data.name}
             </h1>
 
@@ -26,7 +26,7 @@ export function Hero({ data }: HeroProps) {
             </div>
           </div>
 
-          <nav className="pointer-events-auto mt-2 flex flex-wrap items-center gap-3 text-sm text-(--color-text-secondary)">
+          <nav className="pointer-events-auto mt-2 flex flex-wrap items-center gap-2 text-xs text-(--color-text-secondary) sm:gap-3 sm:text-sm">
             {data.socials.map((s) => (
               <TextLink
                 key={s.href}
@@ -42,7 +42,7 @@ export function Hero({ data }: HeroProps) {
             ))}
           </nav>
 
-          <div className="pointer-events-auto mt-8">
+          <div className="pointer-events-auto mt-6 sm:mt-8">
             <div className="section-title">Experiences</div>
             <Experiences items={data.experiences} />
           </div>
