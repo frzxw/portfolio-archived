@@ -18,15 +18,23 @@ type HeroProps = {
   data: Pick<PortfolioData, "name" | "socials" | "experiences">;
 };
 
+// Check if device is mobile/tablet (< 768px)
+const IS_MOBILE_QUERY = "(max-width: 767px)";
+
 export function Hero({ data }: HeroProps) {
   const [lanyardInteracting, setLanyardInteracting] = useState(false);
   const [showLanyard, setShowLanyard] = useState(false);
 
-  // Delay Lanyard until browser is idle to prioritize LCP content
+  // Only load Lanyard on desktop to save ~500KB+ JS on mobile
+  // Also delay until browser is idle to prioritize LCP content
   useEffect(() => {
+    // Skip Lanyard on mobile for better performance
+    const isMobile = window.matchMedia(IS_MOBILE_QUERY).matches;
+    if (isMobile) return;
+
     // Use requestIdleCallback if available, otherwise setTimeout
-    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 100));
-    const id = scheduleLoad(() => setShowLanyard(true), { timeout: 2000 });
+    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 200));
+    const id = scheduleLoad(() => setShowLanyard(true), { timeout: 3000 });
 
     return () => {
       if (window.cancelIdleCallback) {

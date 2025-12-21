@@ -19,7 +19,6 @@ const nextConfig: NextConfig = {
       "@react-three/fiber",
       "@react-three/drei",
       "@react-three/rapier",
-      "framer-motion",
       "lucide-react",
       "react-icons",
     ],

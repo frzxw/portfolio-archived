@@ -1,7 +1,6 @@
 "use client";
 
 import type { Experience } from "../../../mock/portfolio";
-import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useCallback } from "react";
 
 type ExperiencesProps = {
@@ -45,93 +44,86 @@ export function Experiences({ items, interactionDisabled = false }: ExperiencesP
   );
 
   return (
-    <LazyMotion features={domAnimation}>
-      <div className="flex flex-col gap-2">
-        {items.map((x) => {
-          const key = `${x.company}-${x.role}`;
-          const isActive = activeKey === key;
-          const hasContributions = x.contributions.length > 0;
+    <div className="flex flex-col gap-2">
+      {items.map((x) => {
+        const key = `${x.company}-${x.role}`;
+        const isActive = activeKey === key;
+        const hasContributions = x.contributions.length > 0;
 
-          const content = (
-            <m.div
-              layout
-              onMouseEnter={() => {
-                if (interactionDisabled) return;
-                setActiveKey(key);
-              }}
-              onMouseLeave={() => {
-                if (interactionDisabled) return;
-                setActiveKey(null);
-              }}
-              onFocus={() => {
-                if (interactionDisabled) return;
-                setActiveKey(key);
-              }}
-              onBlur={() => {
-                if (interactionDisabled) return;
-                setActiveKey(null);
-              }}
-              className="row-hover px-4 py-3"
-            >
-              <div className="flex items-center justify-between gap-6">
-                <div className="min-w-0">
-                  <div className="truncate font-semibold">{x.company}</div>
-                  <div className="truncate text-sm text-(--color-text-secondary)">
-                    {x.role}
-                  </div>
-                </div>
-                <div className="shrink-0 text-sm text-(--color-text-secondary)">
-                  {x.start} — {x.end}
+        const content = (
+          <div
+            onMouseEnter={() => {
+              if (interactionDisabled) return;
+              setActiveKey(key);
+            }}
+            onMouseLeave={() => {
+              if (interactionDisabled) return;
+              setActiveKey(null);
+            }}
+            onFocus={() => {
+              if (interactionDisabled) return;
+              setActiveKey(key);
+            }}
+            onBlur={() => {
+              if (interactionDisabled) return;
+              setActiveKey(null);
+            }}
+            className="row-hover px-4 py-3"
+          >
+            <div className="flex items-center justify-between gap-6">
+              <div className="min-w-0">
+                <div className="truncate font-semibold">{x.company}</div>
+                <div className="truncate text-sm text-(--color-text-secondary)">
+                  {x.role}
                 </div>
               </div>
-
-              <AnimatePresence initial={false}>
-                {isActive && hasContributions ? (
-                  <m.div
-                    key="details"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="mt-3 space-y-2 text-sm text-(--color-text-secondary)">
-                      {x.contributions.map((c) => (
-                        <div key={c} className="flex gap-2">
-                          <span className="mt-[0.35em] h-1.5 w-1.5 shrink-0 rounded-full bg-(--color-border-subtle)" />
-                          <span className="min-w-0">{c}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </m.div>
-                ) : null}
-              </AnimatePresence>
-            </m.div>
-          );
-
-          // For mobile: wrap in clickable div that handles expand-first behavior
-          return x.href ? (
-            <a
-              key={key}
-              href={x.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block"
-              onClick={(e) => handleClick(e, key, x.href, isActive)}
-            >
-              {content}
-            </a>
-          ) : (
-            <div
-              key={key}
-              onClick={(e) => handleClick(e, key, undefined, isActive)}
-              className="cursor-pointer"
-            >
-              {content}
+              <div className="shrink-0 text-sm text-(--color-text-secondary)">
+                {x.start} — {x.end}
+              </div>
             </div>
-          );
-        })}
-      </div>
-    </LazyMotion>
+
+            {/* CSS-only transition for expand/collapse */}
+            <div
+              className="overflow-hidden transition-all duration-200 ease-out"
+              style={{
+                maxHeight: isActive && hasContributions ? "500px" : "0",
+                opacity: isActive && hasContributions ? 1 : 0,
+              }}
+            >
+              <div className="mt-3 space-y-2 text-sm text-(--color-text-secondary)">
+                {x.contributions.map((c) => (
+                  <div key={c} className="flex gap-2">
+                    <span className="mt-[0.35em] h-1.5 w-1.5 shrink-0 rounded-full bg-(--color-border-subtle)" />
+                    <span className="min-w-0">{c}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+
+        // For mobile: wrap in clickable div that handles expand-first behavior
+        return x.href ? (
+          <a
+            key={key}
+            href={x.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+            onClick={(e) => handleClick(e, key, x.href, isActive)}
+          >
+            {content}
+          </a>
+        ) : (
+          <div
+            key={key}
+            onClick={(e) => handleClick(e, key, undefined, isActive)}
+            className="cursor-pointer"
+          >
+            {content}
+          </div>
+        );
+      })}
+    </div>
   );
 }
