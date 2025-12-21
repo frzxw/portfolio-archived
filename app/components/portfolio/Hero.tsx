@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ThemeToggle } from "../theme/ThemeToggle";
 import { TextLink } from "../ui/TextLink";
 import type { PortfolioData } from "../../../mock/portfolio";
 import { BrandIcon } from "../icons/BrandIcon";
@@ -12,6 +11,12 @@ import { useCallback, useState, useEffect, Suspense } from "react";
 const Lanyard = dynamic(() => import("../Lanyard"), {
   ssr: false,
 });
+
+// ThemeToggle - not critical for LCP
+const ThemeToggle = dynamic(
+  () => import("../theme/ThemeToggle").then(m => ({ default: m.ThemeToggle })),
+  { ssr: false }
+);
 
 // Experiences has interaction handlers - defer loading
 const Experiences = dynamic(

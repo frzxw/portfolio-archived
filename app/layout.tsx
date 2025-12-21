@@ -4,19 +4,19 @@ import "./globals.css";
 import { Providers } from "./components/theme/Providers";
 import { portfolio } from "@/mock/portfolio";
 
-// Optimized font loading - minimal weights for faster mobile
-// Using 'optional' for instant LCP - shows system font if custom not ready
+// Optimized font loading for fastest mobile LCP
+// Using 'optional' + no preload = instant text rendering with system font
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  display: "optional", // Fastest LCP - renders immediately with fallback
-  preload: true,
-  weight: ["400", "700"], // Only critical weights
+  display: "optional", // Renders immediately, upgrades to custom font when loaded
+  preload: false, // Don't block LCP - load in background
+  weight: ["400", "700"],
   adjustFontFallback: true,
-  fallback: ["system-ui", "arial"], // Explicit fallback fonts
+  fallback: ["system-ui", "arial"],
 });
 
-// JetBrains Mono is not used in hero - load it lazily
+// JetBrains Mono - not critical
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
@@ -156,10 +156,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preconnect for faster font loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
         {/* Critical CSS for mobile LCP - inlined for faster first paint */}
         <style
           dangerouslySetInnerHTML={{
