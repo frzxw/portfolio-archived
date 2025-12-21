@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/theme/Providers";
+import { portfolio } from "@/mock/portfolio";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -14,8 +15,67 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "Senior full stack engineer portfolio",
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+    : undefined,
+  title: {
+    default: `${portfolio.name} — ${portfolio.tagline}`,
+    template: `%s — ${portfolio.name}`,
+  },
+  description:
+    `${portfolio.tagline}. Computer Science undergraduate at Universitas Pendidikan Indonesia. Based in Indonesia; open to internships and recruiter outreach.`,
+  applicationName: `${portfolio.name} Portfolio`,
+  authors: [{ name: portfolio.name }],
+  creator: portfolio.name,
+  publisher: portfolio.name,
+  category: "Technology",
+  keywords: [
+    portfolio.name,
+    "Full-Stack Engineer",
+    "Full Stack Developer",
+    "Software Engineer",
+    "TypeScript",
+    "React",
+    "Next.js",
+    "Node.js",
+    "Bun",
+    "NestJS",
+    "Backend Engineer",
+    "Frontend Engineer",
+    "Web Developer",
+    "Indonesia",
+    "Bandung",
+    "Universitas Pendidikan Indonesia",
+    "UPI",
+    "Computer Science Undergraduate",
+    "Mahasiswa Ilmu Komputer",
+  ],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    title: `${portfolio.name} — ${portfolio.tagline}`,
+    description:
+      `${portfolio.tagline}. Computer Science undergraduate at Universitas Pendidikan Indonesia.`,
+    siteName: `${portfolio.name} Portfolio`,
+    locale: "en_US",
+    alternateLocale: ["id_ID"],
+  },
+  twitter: {
+    card: "summary",
+    title: `${portfolio.name} — ${portfolio.tagline}`,
+    description:
+      `${portfolio.tagline}. UPI CS undergraduate in Indonesia.`,
+  },
 };
 
 export default function RootLayout({
@@ -23,8 +83,64 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const personJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: portfolio.name,
+    jobTitle: portfolio.tagline,
+    description:
+      `${portfolio.tagline}. Computer Science undergraduate at Universitas Pendidikan Indonesia.`,
+    knowsAbout: [
+      "TypeScript",
+      "React",
+      "Next.js",
+      "Node.js",
+      "Bun",
+      "NestJS",
+      "Web Development",
+      "Backend Engineering",
+      "Frontend Engineering",
+      "API Design",
+      "Software Engineering",
+    ],
+    inLanguage: ["en", "id"],
+    alumniOf: [
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Universitas Pendidikan Indonesia",
+        alternateName: "UPI",
+      },
+    ],
+    address: {
+      "@type": "Country",
+      name: "Indonesia",
+    },
+    sameAs: portfolio.socials.map((s) => s.href),
+  };
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: `${portfolio.name} Portfolio`,
+    description:
+      `${portfolio.tagline}. Computer Science undergraduate at Universitas Pendidikan Indonesia.`,
+    inLanguage: ["en", "id"],
+    publisher: {
+      "@type": "Person",
+      name: portfolio.name,
+    },
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([personJsonLd, websiteJsonLd]),
+          }}
+        />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} app-shell`}
       >
