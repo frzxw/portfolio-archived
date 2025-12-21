@@ -5,13 +5,15 @@ import { Providers } from "./components/theme/Providers";
 import { portfolio } from "@/mock/portfolio";
 
 // Optimized font loading - minimal weights for faster mobile
+// Using 'optional' for instant LCP - shows system font if custom not ready
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  display: "swap",
+  display: "optional", // Fastest LCP - renders immediately with fallback
   preload: true,
-  weight: ["400", "600", "700"], // Minimal weights for LCP
+  weight: ["400", "700"], // Only critical weights
   adjustFontFallback: true,
+  fallback: ["system-ui", "arial"], // Explicit fallback fonts
 });
 
 // JetBrains Mono is not used in hero - load it lazily
@@ -164,8 +166,9 @@ export default function RootLayout({
             __html: `
               :root{--color-background-primary:#fafafa;--color-text-primary:#09090b}
               [data-theme=dark]{--color-background-primary:#000;--color-text-primary:#fafafa}
-              html,body{margin:0;padding:0;background:var(--color-background-primary);color:var(--color-text-primary)}
-              h1{font-size:clamp(2.75rem,7vw,4.75rem);font-weight:700;letter-spacing:-0.03em;margin:0}
+              *{box-sizing:border-box}
+              html,body{margin:0;padding:0;background:var(--color-background-primary);color:var(--color-text-primary);font-family:system-ui,arial,sans-serif}
+              h1{font-size:clamp(2.75rem,7vw,4.75rem);font-weight:700;letter-spacing:-0.03em;margin:0;line-height:1.1}
               .app-shell{min-height:100svh}
               .centered{width:100%;max-width:880px;margin-inline:auto;padding-inline:clamp(1rem,3vw,1.5rem)}
               .section{padding-block:clamp(1.5rem,4vw,2rem)}
