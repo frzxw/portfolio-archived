@@ -114,7 +114,14 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: geometricPrecision;
+  /* Use optimizeLegibility only on desktop for better mobile perf */
+  text-rendering: optimizeSpeed;
+}
+
+@media (min-width: 768px) {
+  body {
+    text-rendering: optimizeLegibility;
+  }
 }
 
 ::selection {

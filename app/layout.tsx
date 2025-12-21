@@ -1,22 +1,37 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/theme/Providers";
 import { portfolio } from "@/mock/portfolio";
 
+// Optimized font loading - only load weights we actually use
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
   preload: true,
+  weight: ["400", "500", "600", "700"], // Only needed weights
+  adjustFontFallback: true, // Faster fallback rendering
 });
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
   subsets: ["latin"],
   display: "swap",
-  preload: true,
+  preload: false, // Not critical for LCP
+  weight: ["400"],
+  adjustFontFallback: true,
 });
+
+// Viewport configuration for mobile
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
@@ -78,7 +93,7 @@ export const metadata: Metadata = {
     card: "summary",
     title: `${portfolio.name} — ${portfolio.tagline}`,
     description:
-      `${portfolio.tagline}. UPI CS undergraduate in Indonesia.`,
+      `${portfolio.tagline}. Computer Science undergraduate at Universitas Pendidikan Indonesia.`,
   },
 };
 
@@ -142,9 +157,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
 
-        {/* Prefetch 3D assets for Lanyard (loaded after delay) */}
-        <link rel="prefetch" href="/assets/tag.glb" as="fetch" crossOrigin="anonymous" />
-        <link rel="prefetch" href="/assets/band.avif" as="image" />
+        {/* Critical CSS for mobile LCP - inlined for faster first paint */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              h1{font-size:clamp(2.75rem,7vw,4.75rem);font-weight:700;letter-spacing:-0.03em}
+              .app-shell{min-height:100svh}
+              .centered{width:100%;max-width:880px;margin-inline:auto;padding-inline:clamp(1rem,3vw,1.5rem)}
+            `,
+          }}
+        />
 
         {/* Inline theme script to prevent FOUC - runs before paint */}
         <script
@@ -152,6 +174,11 @@ export default function RootLayout({
             __html: `try{const t=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme:dark)').matches;document.documentElement.dataset.theme=t||(d?'dark':'light')}catch{}`,
           }}
         />
+
+        {/* Low-priority prefetch for 3D assets (loaded after LCP) */}
+        <link rel="prefetch" href="/assets/tag.glb" as="fetch" crossOrigin="anonymous" />
+        <link rel="prefetch" href="/assets/band.avif" as="image" />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
