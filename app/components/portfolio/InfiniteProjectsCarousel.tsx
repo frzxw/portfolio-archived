@@ -17,7 +17,7 @@ function ProjectCard({ project }: { project: Project }) {
           <div className="min-w-0">
             <div className="truncate font-semibold">{project.title}</div>
             {project.highlight && (
-              <div className="mt-1 text-xs uppercase tracking-[0.14em] text-(--color-text-secondary)">
+              <div className="mt-1 text-xs capitalize tracking-[0.14em] text-(--color-text-secondary)">
                 {project.highlight}
               </div>
             )}
