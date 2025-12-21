@@ -44,7 +44,7 @@ export function Experiences({ items, interactionDisabled = false }: ExperiencesP
   );
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className={`flex flex-col gap-2 ${interactionDisabled ? "pointer-events-none select-none" : ""}`}>
       {items.map((x) => {
         const key = `${x.company}-${x.role}`;
         const isActive = activeKey === key;
