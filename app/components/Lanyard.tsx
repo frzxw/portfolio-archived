@@ -219,10 +219,19 @@ function LanyardRig({
         (document.body.style as CSSStyleDeclaration & { WebkitUserSelect?: string }).WebkitUserSelect =
             "none";
 
+        // On touch devices, prevent the page from scrolling while the user is dragging
+        // the lanyard. We attach a non-passive listener so preventDefault is honored.
+        const preventTouchScroll = (event: TouchEvent) => {
+            event.preventDefault();
+        };
+        document.addEventListener("touchmove", preventTouchScroll, { passive: false });
+
         return () => {
             document.body.style.userSelect = "";
             (document.body.style as CSSStyleDeclaration & { WebkitUserSelect?: string }).WebkitUserSelect =
                 "";
+
+            document.removeEventListener("touchmove", preventTouchScroll);
         };
     }, [dragged]);
 
