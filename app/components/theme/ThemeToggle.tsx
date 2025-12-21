@@ -13,7 +13,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      aria-label={`Switch to ${nextTheme} theme`}
+      aria-label="Toggle theme"
       onClick={() => setTheme(nextTheme)}
       className="inline-flex h-10 w-10 cursor-pointer select-none items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card) text-(--color-text-primary) transition-colors duration-200 ease-out hover:bg-(--color-card-hover) active:bg-(--color-card-hover)"
     >
