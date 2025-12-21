@@ -20,11 +20,21 @@ type HeroProps = {
 
 export function Hero({ data }: HeroProps) {
   const [lanyardInteracting, setLanyardInteracting] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
+  const [showLanyard, setShowLanyard] = useState(false);
 
-  // Ensure component is mounted on client before rendering Lanyard
+  // Delay Lanyard until browser is idle to prioritize LCP content
   useEffect(() => {
-    setIsMounted(true);
+    // Use requestIdleCallback if available, otherwise setTimeout
+    const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 100));
+    const id = scheduleLoad(() => setShowLanyard(true), { timeout: 2000 });
+
+    return () => {
+      if (window.cancelIdleCallback) {
+        window.cancelIdleCallback(id as number);
+      } else {
+        clearTimeout(id as unknown as number);
+      }
+    };
   }, []);
 
   const handleLanyardInteractionChange = useCallback((isInteracting: boolean) => {
@@ -33,7 +43,7 @@ export function Hero({ data }: HeroProps) {
 
   return (
     <section className="relative w-full">
-      {isMounted && (
+      {showLanyard && (
         <Suspense fallback={null}>
           <Lanyard
             className="absolute inset-0 z-50"

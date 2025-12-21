@@ -6,6 +6,12 @@ const nextConfig: NextConfig = {
   // Enable production source maps for debugging and Lighthouse insights
   productionBrowserSourceMaps: true,
 
+  // Disable source maps in production to reduce bundle size (comment above line)
+  // productionBrowserSourceMaps: false,
+
+  // Enable React strict mode
+  reactStrictMode: true,
+
   // Tree-shake large dependencies to reduce bundle size
   experimental: {
     optimizePackageImports: [
@@ -17,6 +23,11 @@ const nextConfig: NextConfig = {
       "lucide-react",
       "react-icons",
     ],
+  },
+
+  // Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
   },
 };
 

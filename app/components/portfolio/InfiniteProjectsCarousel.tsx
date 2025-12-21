@@ -1,5 +1,4 @@
 import type { Project } from "../../../mock/portfolio";
-import { TextLink } from "../ui/TextLink";
 import { BrandIcon } from "../icons/BrandIcon";
 import { TechIcon } from "../icons/TechIcon";
 
@@ -10,10 +9,12 @@ function ProjectCard({ project }: { project: Project }) {
     : `Open ${project.title} project (opens in a new tab)`;
 
   return (
-    <TextLink
+    <a
       href={primaryHref}
+      target="_blank"
+      rel="noopener noreferrer"
       className="block"
-      ariaLabel={ariaLabel}
+      aria-label={ariaLabel}
     >
       <div className="card flex h-72 w-72 shrink-0 flex-col p-4 sm:h-80 sm:w-80">
         <div className="flex items-start justify-between gap-3">
@@ -36,7 +37,7 @@ function ProjectCard({ project }: { project: Project }) {
 
         <div className="mt-auto pt-4">
           <div className="flex items-center gap-2 text-(--color-text-secondary)">
-            {project.stackSlugs.slice(0, 6).map((slug) => (
+            {project.stackSlugs.slice(0, 4).map((slug) => (
               <span
                 key={slug}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)"
@@ -48,7 +49,7 @@ function ProjectCard({ project }: { project: Project }) {
           </div>
         </div>
       </div>
-    </TextLink>
+    </a>
   );
 }
 
@@ -57,7 +58,8 @@ type InfiniteProjectsCarouselProps = {
 };
 
 export function InfiniteProjectsCarousel({ items }: InfiniteProjectsCarouselProps) {
-  const repeated = [...items, ...items, ...items];
+  // Only duplicate twice (not 3x) to reduce DOM size
+  const repeated = [...items, ...items];
 
   return (
     <div className="marquee -mx-4 py-4 sm:-mx-6 sm:py-6">

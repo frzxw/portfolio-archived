@@ -220,6 +220,7 @@ html[data-theme="dark"] .theme-icon--moon {
   from {
     transform: translateX(0);
   }
+
   to {
     transform: translateX(-33.3333%);
   }
@@ -245,20 +246,16 @@ html[data-theme="dark"] .theme-icon--moon {
 
 .marquee::before {
   left: 0;
-  background: linear-gradient(
-    to right,
-    var(--color-background-primary),
-    rgba(0, 0, 0, 0)
-  );
+  background: linear-gradient(to right,
+      var(--color-background-primary),
+      rgba(0, 0, 0, 0));
 }
 
 .marquee::after {
   right: 0;
-  background: linear-gradient(
-    to left,
-    var(--color-background-primary),
-    rgba(0, 0, 0, 0)
-  );
+  background: linear-gradient(to left,
+      var(--color-background-primary),
+      rgba(0, 0, 0, 0));
 }
 
 .marqueeTrack {
@@ -286,4 +283,20 @@ html[data-theme="dark"] .theme-icon--moon {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Performance: content-visibility for below-fold sections */
+.section:not(:first-of-type) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Optimize paint for animated elements */
+.marqueeTrack {
+  will-change: transform;
+  contain: layout style;
+}
+
+.card {
+  contain: layout style paint;
 }

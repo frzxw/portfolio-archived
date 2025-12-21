@@ -1,11 +1,26 @@
+import dynamic from "next/dynamic";
 import { portfolio } from "../../../mock/portfolio";
 import { Hero } from "./Hero";
 import { Section } from "../ui/Section";
-import { Research } from "./Research";
-import { InfiniteProjectsCarousel } from "./InfiniteProjectsCarousel";
-import { Apps } from "./Apps";
-import { OpenSource } from "./OpenSource";
-import { PersonalProjects } from "./PersonalProjects";
+
+// Lazy load below-the-fold content to improve LCP
+const Research = dynamic(() => import("./Research").then(m => ({ default: m.Research })), {
+  loading: () => <div className="h-32" />,
+});
+const InfiniteProjectsCarousel = dynamic(
+  () => import("./InfiniteProjectsCarousel").then(m => ({ default: m.InfiniteProjectsCarousel })),
+  { loading: () => <div className="h-80" /> }
+);
+const Apps = dynamic(() => import("./Apps").then(m => ({ default: m.Apps })), {
+  loading: () => <div className="h-32" />,
+});
+const OpenSource = dynamic(() => import("./OpenSource").then(m => ({ default: m.OpenSource })), {
+  loading: () => <div className="h-32" />,
+});
+const PersonalProjects = dynamic(
+  () => import("./PersonalProjects").then(m => ({ default: m.PersonalProjects })),
+  { loading: () => <div className="h-32" /> }
+);
 
 export function PortfolioPage() {
   return (
