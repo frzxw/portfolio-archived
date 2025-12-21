@@ -35,7 +35,7 @@ export function PortfolioPage() {
       <footer className="section">
         <div className="centered">
           <div className="text-sm text-(--color-text-secondary)">
-            Built with Next.js • Minimal, fast, and motion-forward.
+            © {new Date().getFullYear()} {portfolio.name}. All rights reserved.
           </div>
         </div>
       </footer>
