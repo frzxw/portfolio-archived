@@ -17,12 +17,18 @@ export function Research({ items }: ResearchProps) {
           <div className="flex items-start justify-between gap-6">
             <div className="min-w-0">
               <div className="truncate font-semibold">{x.title}</div>
-              {(x.venue || x.year) && (
+              {x.venue && (
                 <div className="mt-1 text-sm text-(--color-text-secondary)">
-                  {[x.venue, x.year].filter(Boolean).join(" • ")}
+                  {x.venue}
                 </div>
               )}
             </div>
+
+            {x.year && (
+              <div className="shrink-0 text-sm text-(--color-text-secondary)">
+                {x.year}
+              </div>
+            )}
           </div>
         </TextLink>
       ))}
