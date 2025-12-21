@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
 
+  // Enable Gzip compression (Next.js default, but explicit for clarity)
+  compress: true,
+
   // Tree-shake large dependencies to reduce bundle size
   experimental: {
     optimizePackageImports: [
