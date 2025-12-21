@@ -37,10 +37,10 @@ type PointerCaptureTarget = {
 };
 
 useGLTF.preload(
-    "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/5huRVDzcoDwnbgrKUo1Lzs/53b6dd7d6b4ffcdbd338fa60265949e1/tag.glb",
+    "/assets/tag.glb",
 );
 useTexture.preload(
-    "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/SOT1hmCesOHxEYxL7vkoZ/c57b29c85912047c414311723320c16b/band.jpg",
+    "/assets/band.avif",
 );
 
 export type LanyardProps = {
@@ -158,11 +158,11 @@ function LanyardRig({
     } satisfies RigidBodyProps;
 
     const { nodes, materials } = useGLTF(
-    "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/5huRVDzcoDwnbgrKUo1Lzs/53b6dd7d6b4ffcdbd338fa60265949e1/tag.glb",
+    "/assets/tag.glb",
     ) as unknown as TagGLTF;
 
     const texture = useTexture(
-        "https://assets.vercel.com/image/upload/contentful/image/e5382hct74si/SOT1hmCesOHxEYxL7vkoZ/c57b29c85912047c414311723320c16b/band.jpg",
+        "/assets/band.avif",
         (t) => {
             t.wrapS = t.wrapT = THREE.RepeatWrapping;
         },
@@ -252,6 +252,9 @@ function LanyardRig({
         if (fixed.current) {
             if (!card.current || !j1.current || !j2.current || !j3.current) return;
 
+            const cardBody = card.current;
+            const isCardSleeping = cardBody.isSleeping?.() ?? false;
+
             // Fix most of the jitter when over pulling the card
             [j1.current, j2.current].forEach((body) => {
                 if (!body.lerped) body.lerped = new THREE.Vector3().copy(body.translation());
@@ -275,12 +278,19 @@ function LanyardRig({
             band.current.geometry.setPoints(curve.getPoints(32));
 
             // Tilt it back towards the screen
-            ang.copy(card.current.angvel());
-            rot.copy(card.current.rotation());
-            card.current.setAngvel(
-                { x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
-                true,
-            );
+            if (!dragged && !isCardSleeping) {
+                ang.copy(cardBody.angvel());
+                rot.copy(cardBody.rotation());
+                const targetY = ang.y - rot.y * 0.25;
+
+                // Only apply small corrections and never wake a sleeping body.
+                if (Math.abs(targetY - ang.y) > 1e-4) {
+                    cardBody.setAngvel(
+                        { x: ang.x, y: targetY, z: ang.z },
+                        false,
+                    );
+                }
+            }
         }
     });
 
