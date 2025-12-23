@@ -65,7 +65,7 @@ export type PortfolioData = {
 
 const PERSON_NAME = "Fariz Wibisono";
 const TAGLINE =
-  "Full‑Stack Engineer";
+  "Full Stack Software Engineer";
 
 export const portfolio: PortfolioData = {
   name: PERSON_NAME,
@@ -89,160 +89,124 @@ export const portfolio: PortfolioData = {
   ],
   experiences: [
     {
-      company: "Lorem ipsum dolor sit amet",
-      role: "Lorem ipsum",
-      start: "20XX",
-      end: "20XX",
-      href: "https://example.com/experience-1",
+      company: "Enclavium",
+      role: "Community Technical Team",
+      start: "2023",
+      end: "Present",
+      href: undefined,
       contributions: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.",
+        "Developed and maintained a public landing page to present Web3 research and community initiatives.",
+        "Supported internal tools and technical resources related to blockchain education and on-chain research."
       ],
     },
     {
-      company: "Sed ut perspiciatis unde",
-      role: "Lorem ipsum",
-      start: "20XX",
-      end: "20XX",
-      href: "https://example.com/experience-2",
+      company: "KEMAKOM Universitas Pendidikan Indonesia",
+      role: "Web Development Volunteer",
+      start: "2024",
+      end: "2025",
+      href: undefined,
       contributions: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse.",
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa.",
+        "Developed an event information website for Dinamik 19 (Dies Natalis KEMAKOM UPI), covering competition details and technical guidelines.",
+        "Built a tourism and information website for P2M KEMAKOM UPI to support a community-based camping ground project."
       ],
     },
     {
-      company: "At vero eos et accusamus",
-      role: "Lorem ipsum",
-      start: "20XX",
-      end: "20XX",
-      href: "https://example.com/experience-3",
+      company: "Exsaverse",
+      role: "Community Operations Team",
+      start: "2022",
+      end: "2023",
+      href: undefined,
       contributions: [
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-        "Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit.",
-        "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.",
+        "Acted as an intermediary in peer-to-peer blockchain transactions by holding buyer funds in escrow and releasing them upon completion.",
+        "Coordinated transaction processes between buyers and sellers to ensure secure and transparent transfers.",
+        "Supported operational activities for a Web3 community with 14,000+ social followers and 71,000+ Discord members."
+      ],
+    },
+    {
+      company: "InearDAO",
+      role: "Co-Founder",
+      start: "2021",
+      end: "2023",
+      href: undefined,
+      contributions: [
+        "Co-founded and managed a Web3 education community with 500+ active members and 3,600+ social followers.",
+        "Delivered curated Web3 research insights on airdrops, NFTs, and DeFi opportunities, helping members identify and participate in early-stage blockchain initiatives."
       ],
     },
   ],
   research: [
     {
-      title: "Lorem ipsum dolor sit amet",
-      href: "https://example.com/research-1",
-      venue: "Lorem ipsum",
-      year: "20XX",
-    },
-    {
-      title: "Sed do eiusmod tempor incididunt",
-      href: "https://example.com/research-2",
-      venue: "Lorem ipsum",
-      year: "20XX",
+      title: "No research papers yet",
+      href: "#",
+      venue: undefined,
+      year: undefined,
     },
   ],
   projects: [
     {
-      title: "Lorem ipsum project I",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-      href: "https://example.com/project-1",
-      repo: "https://example.com/repo-1",
-      stackSlugs: ["typescript", "react", "nodedotjs"],
-      highlight: "Lorem ipsum",
+      title: "17RentCar",
+      description: "Built a responsive web application for vehicle catalog and WhatsApp-based booking flow. Designed data models for vehicle availability and scheduling to support rental operations.",
+      href: "https://frzxw.me/17rentcar",
+      repo: undefined,
+      stackSlugs: ["nextdotjs", "tailwindcss", "postgresql", "supabase", "vercel"],
+      highlight: "Web rental and booking platform"
     },
     {
-      title: "Lorem ipsum project II",
-      description:
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.",
-      href: "https://example.com/project-2",
-      repo: "https://example.com/repo-2",
-      stackSlugs: ["typescript", "nextdotjs", "react"],
-      highlight: "Lorem ipsum",
+      title: "Eventix",
+      description: "Developed a cloud-based ticket booking system with safeguards to prevent double booking. Designed system flows for read-heavy traffic and controlled write operations during high-demand events. Implemented backend logic to ensure data consistency and transactional safety.",
+      href: "https://frzxw.me/eventix",
+      repo: "https://github.com/frzxw/eventix",
+      stackSlugs: ["react", "typescript", "azurefunctions", "azuresql", "cosmosdb", "redis"],
+      highlight: "Online ticket booking system"
     },
     {
-      title: "Lorem ipsum project III",
-      description:
-        "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
-      href: "https://example.com/project-3",
-      repo: "https://example.com/repo-3",
-      stackSlugs: ["typescript", "nodedotjs"],
-      highlight: "Lorem ipsum",
+      title: "Rasain",
+      description: "Built a cross-platform mobile application for recipe discovery and pantry tracking. Developed RESTful backend APIs to support content delivery, user interaction, and future feature scalability. Integrated frontend and backend systems to ensure smooth data synchronization.",
+      href: "https://frzxw.me/rasain",
+      repo: "https://github.com/frzxw/rasain",
+      stackSlugs: ["flutter", "expressjs", "postgresql", "supabase"],
+      highlight: "Mobile recipe application"
     },
     {
-      title: "Lorem ipsum project IV",
-      description:
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-      href: "https://example.com/project-4",
-      repo: "https://example.com/repo-4",
-      stackSlugs: ["react", "nextdotjs"],
-      highlight: "Lorem ipsum",
+      title: "Runtastic",
+      description: "Developed a public-facing company profile website for a Bandung-based running community. Implemented responsive layouts and structured content to improve community visibility and brand presence.",
+      href: "https://frzxw.me/runtastic",
+      repo: undefined,
+      stackSlugs: ["react", "typescript", "vite", "radixui", "vercel"],
+      highlight: "Running community website"
     },
     {
-      title: "Lorem ipsum project V",
-      description:
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      href: "https://example.com/project-5",
-      repo: "https://example.com/repo-5",
-      stackSlugs: ["nextdotjs", "typescript"],
-      highlight: "Lorem ipsum",
-    },
-    {
-      title: "Lorem ipsum project VI",
-      description:
-        "Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.",
-      href: "https://example.com/project-6",
-      repo: "https://example.com/repo-6",
-      stackSlugs: ["typescript", "react"],
-      highlight: "Lorem ipsum",
+      title: "Laksana",
+      description: "Built a multilingual company profile website to represent a personal software agency and freelance services. Designed scalable layout and content structure for future service expansion.",
+      href: "https://frzxw.me/laksana",
+      repo: undefined,
+      stackSlugs: ["react", "typescript", "vite", "tailwindcss", "i18n", "vercel"],
+      highlight: "Software agency website"
     },
   ],
   apps: [
     {
-      title: "Lorem ipsum app I",
-      href: "https://example.com/app-1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
-      stack: ["Lorem", "Ipsum", "Dolor"],
-    },
-    {
-      title: "Lorem ipsum app II",
-      href: "https://example.com/app-2",
-      description:
-        "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.",
-      stack: ["Lorem", "Ipsum"],
+      title: "No applications yet",
+      href: "#",
+      description: "Stay tuned for upcoming apps!",
+      stack: [],
     },
   ],
   openSource: [
     {
-      title: "Lorem ipsum open source I",
-      href: "https://example.com/open-source-1",
-      stars: 1234,
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
-      stack: ["Lorem", "Ipsum"],
-    },
-    {
-      title: "Lorem ipsum open source II",
-      href: "https://example.com/open-source-2",
-      stars: 567,
-      description:
-        "Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.",
-      stack: ["Lorem", "Dolor"],
+      title: "No open source projects yet",
+      href: "#",
+      stars: 0,
+      description: "Open source contributions will appear here.",
+      stack: [],
     },
   ],
   personalProjects: [
     {
-      title: "Lorem ipsum personal I",
-      href: "https://example.com/personal-1",
-      description:
-        "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-      stack: ["Lorem", "Ipsum", "Sit"],
-    },
-    {
-      title: "Lorem ipsum personal II",
-      href: "https://example.com/personal-2",
-      description:
-        "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-      stack: ["Lorem", "Ipsum"],
+      title: "No personal projects yet",
+      href: "#",
+      description: "Fun and personal projects will be listed soon!",
+      stack: [],
     },
   ],
 };

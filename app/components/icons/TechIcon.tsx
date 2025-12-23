@@ -13,7 +13,17 @@ import {
   SiReact,
   SiTypescript,
   SiVercel,
+  SiTailwindcss,
+  SiSupabase,
+  SiRedis,
+  SiFlutter,
+  SiExpress,
+  SiVite,
+  SiRadixui,
+  SiI18Next,
+  SiMongodb,
 } from "react-icons/si";
+import { AzFunctions, AzSQLDatabase, CosmosDBcolor } from "azure-react-icons";
 import type { IconType } from "react-icons";
 
 export type TechSlug =
@@ -30,7 +40,18 @@ export type TechSlug =
   | "cloudflare"
   | "go"
   | "kubernetes"
-  | "prometheus";
+  | "prometheus"
+  | "tailwindcss"
+  | "supabase"
+  | "azurefunctions"
+  | "azuresql"
+  | "cosmosdb"
+  | "redis"
+  | "flutter"
+  | "expressjs"
+  | "vite"
+  | "radixui"
+  | "i18n";
 
 type TechIconProps = {
   slug: string;
@@ -54,6 +75,17 @@ const icons: Record<TechSlug, IconType> = {
   go: SiGo,
   kubernetes: SiKubernetes,
   prometheus: SiPrometheus,
+  tailwindcss: SiTailwindcss,
+  supabase: SiSupabase,
+  azurefunctions: AzFunctions,
+  azuresql: AzSQLDatabase,
+  cosmosdb: CosmosDBcolor,
+  redis: SiRedis,
+  flutter: SiFlutter,
+  expressjs: SiExpress,
+  vite: SiVite,
+  radixui: SiRadixui,
+  i18n: SiI18Next,
 };
 
 export function TechIcon({ slug, size = 16, className, title }: TechIconProps) {
