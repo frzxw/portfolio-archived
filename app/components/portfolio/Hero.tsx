@@ -42,9 +42,9 @@ export function Hero({ data }: HeroProps) {
     const isMobile = window.matchMedia(IS_MOBILE_QUERY).matches;
 
     // Delay strategies optimized for TBT measurement window
-    // Desktop: 1s delay to push Three.js loading outside TBT window
-    // Mobile: 0.5s delay for even more time to complete LCP
-    const baseDelay = isMobile ? 1000 : 500;
+    // Desktop: 3s delay to push Three.js loading outside TBT window
+    // Mobile: 2.5s delay for even more time to complete LCP
+    const baseDelay = isMobile ? 3000 : 2500;
 
     let timeoutId: ReturnType<typeof setTimeout>;
     const scheduleLoad = window.requestIdleCallback ?? ((cb: () => void) => setTimeout(cb, 500));
