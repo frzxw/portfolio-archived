@@ -146,31 +146,31 @@ export const portfolio: PortfolioData = {
     {
       title: "17RentCar",
       description: "Built a responsive web application for vehicle catalog and WhatsApp-based booking flow. Designed data models for vehicle availability and scheduling to support rental operations.",
-      href: "https://frzxw.me/17rentcar",
-      repo: undefined,
+      href: "https://17rentcar.com/",
+      repo: "https://github.com/frzxw/17rentcar",
       stackSlugs: ["nextdotjs", "tailwindcss", "postgresql", "supabase", "vercel"],
       highlight: "Web rental and booking platform"
     },
     {
       title: "Eventix",
       description: "Developed a cloud-based ticket booking system with safeguards to prevent double booking. Designed system flows for read-heavy traffic and controlled write operations during high-demand events. Implemented backend logic to ensure data consistency and transactional safety.",
-      href: "https://frzxw.me/eventix",
-      repo: "https://github.com/frzxw/eventix",
+      href: "https://lemon-grass-000ece900.3.azurestaticapps.net/",
+      repo: "https://github.com/frzxw/eventix-app/",
       stackSlugs: ["react", "typescript", "azurefunctions", "azuresql", "cosmosdb", "redis"],
       highlight: "Online ticket booking system"
     },
     {
       title: "Rasain",
       description: "Built a cross-platform mobile application for recipe discovery and pantry tracking. Developed RESTful backend APIs to support content delivery, user interaction, and future feature scalability. Integrated frontend and backend systems to ensure smooth data synchronization.",
-      href: "https://frzxw.me/rasain",
-      repo: "https://github.com/frzxw/rasain",
+      href: "",
+      repo: "https://github.com/frzxw/rasain-app",
       stackSlugs: ["flutter", "expressjs", "postgresql", "supabase"],
       highlight: "Mobile recipe application"
     },
     {
       title: "Runtastic",
       description: "Developed a public-facing company profile website for a Bandung-based running community. Implemented responsive layouts and structured content to improve community visibility and brand presence.",
-      href: "https://frzxw.me/runtastic",
+      href: "https://runtastic-landing.vercel.app/",
       repo: undefined,
       stackSlugs: ["react", "typescript", "vite", "radixui", "vercel"],
       highlight: "Running community website"
@@ -178,7 +178,7 @@ export const portfolio: PortfolioData = {
     {
       title: "Laksana",
       description: "Built a multilingual company profile website to represent a personal software agency and freelance services. Designed scalable layout and content structure for future service expansion.",
-      href: "https://frzxw.me/laksana",
+      href: "https://laksana.dev/",
       repo: undefined,
       stackSlugs: ["react", "typescript", "vite", "tailwindcss", "i18n", "vercel"],
       highlight: "Software agency website"
