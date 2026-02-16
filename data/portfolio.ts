@@ -156,7 +156,7 @@ export const portfolio: PortfolioData = {
       description: "Developed a cloud-based ticket booking system with safeguards to prevent double booking. Designed system flows for read-heavy traffic and controlled write operations during high-demand events. Implemented backend logic to ensure data consistency and transactional safety.",
       href: "https://lemon-grass-000ece900.3.azurestaticapps.net/",
       repo: "https://github.com/frzxw/eventix-app/",
-      stackSlugs: ["react", "typescript", "azurefunctions", "azuresql", "cosmosdb", "redis"],
+      stackSlugs: ["react", "typescript", "redis"],
       highlight: "Online ticket booking system"
     },
     {
