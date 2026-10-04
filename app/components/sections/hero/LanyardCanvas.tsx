@@ -88,7 +88,7 @@ export default function Lanyard({ className, style, onInteractionChange }: Lanya
                 }}
             >
                 <ambientLight intensity={isMobile ? 2 : Math.PI} />
-                <Physics interpolate gravity={[0, -40, 0]} timeStep={isMobile ? 1 / 60 : 1 / 120} paused={false}>
+                <Physics interpolate gravity={[0, -25, 0]} timeStep={isMobile ? 1 / 60 : 1 / 120} paused={false}>
                     <LanyardRig onInteractionChange={onInteractionChange} />
                 </Physics>
                 {/* Simplified lighting for performance */}
@@ -108,8 +108,8 @@ type LanyardRigProps = {
 };
 
 function LanyardRig({
-    maxSpeed = 50,
-    minSpeed = 10,
+    maxSpeed = 30,
+    minSpeed = 8,
     position = [1.2, 4, 0],
     scale,
     onInteractionChange,
@@ -139,8 +139,17 @@ function LanyardRig({
         type: "dynamic" as const,
         canSleep: true,
         colliders: false as const,
-        angularDamping: 2,
-        linearDamping: 2,
+        angularDamping: 4,
+        linearDamping: 4,
+    } satisfies RigidBodyProps;
+
+    // Card gets heavier damping so it settles fast instead of swinging wildly
+    const cardProps = {
+        type: "dynamic" as const,
+        canSleep: true,
+        colliders: false as const,
+        angularDamping: 6,
+        linearDamping: 6,
     } satisfies RigidBodyProps;
 
     const { nodes, materials } = useGLTF(
@@ -244,6 +253,18 @@ function LanyardRig({
             const cardBody = card.current;
             const isCardSleeping = cardBody.isSleeping?.() ?? false;
 
+            // Hard cap on swing velocity — prevents wild flings after drags.
+            // The rope stays playful but can never build up extreme momentum.
+            if (!dragged && !isCardSleeping) {
+                const lv = cardBody.linvel();
+                const speed = Math.hypot(lv.x, lv.y, lv.z);
+                const MAX_SWING_SPEED = 9;
+                if (speed > MAX_SWING_SPEED) {
+                    const k = MAX_SWING_SPEED / speed;
+                    cardBody.setLinvel({ x: lv.x * k, y: lv.y * k, z: lv.z * k }, true);
+                }
+            }
+
             // Fix most of the jitter when over pulling the card
             [j1.current, j2.current].forEach((body) => {
                 if (!body.lerped) body.lerped = new THREE.Vector3().copy(body.translation());
@@ -288,22 +309,23 @@ function LanyardRig({
             <group name="tag">
                 <RigidBody ref={fixed} {...segmentProps} type="fixed" position={sp(0, 0, 0)} />
 
-                <RigidBody position={sp(0.5, 0, 0)} ref={j1} {...segmentProps}>
+                {/* Start hanging straight down so there's no initial swing */}
+                <RigidBody position={sp(0, -1, 0)} ref={j1} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(1, 0, 0)} ref={j2} {...segmentProps}>
+                <RigidBody position={sp(0, -2, 0)} ref={j2} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(1.5, 0, 0)} ref={j3} {...segmentProps}>
+                <RigidBody position={sp(0, -3, 0)} ref={j3} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
                 <RigidBody
-                    position={sp(2, 0, 0)}
+                    position={sp(0, -4.45, 0)}
                     ref={card}
-                    {...segmentProps}
+                    {...cardProps}
                     type={dragged ? "kinematicPosition" : "dynamic"}
                 >
                     <CuboidCollider args={[0.8 * s, 1.125 * s, 0.01 * s]} />
