@@ -19,8 +19,14 @@ const ThemeToggle = dynamic(
   { ssr: false }
 );
 
+// Experiences has interaction handlers - defer loading
+const Experiences = dynamic(
+  () => import("./Experiences").then(m => ({ default: m.Experiences })),
+  { ssr: false, loading: () => <div className="h-48 animate-pulse" /> }
+);
+
 type HeroProps = {
-  data: Pick<PortfolioData, "name" | "tagline" | "socials">;
+  data: Pick<PortfolioData, "name" | "tagline" | "socials" | "experiences">;
 };
 
 // Check if device is mobile/tablet (< 768px)
@@ -30,8 +36,13 @@ export function Hero({ data }: HeroProps) {
   const [showLanyard, setShowLanyard] = useState(false);
 
   // Delay Lanyard loading to prioritize LCP and reduce TBT
+  // TBT measures blocking during first 5s, so we delay significantly
   useEffect(() => {
     const isMobile = window.matchMedia(IS_MOBILE_QUERY).matches;
+
+    // Delay strategies optimized for TBT measurement window
+    // Desktop: 3s delay to push Three.js loading outside TBT window
+    // Mobile: 2.5s delay for even more time to complete LCP
     const baseDelay = isMobile ? 3000 : 2500;
 
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -51,80 +62,94 @@ export function Hero({ data }: HeroProps) {
   }, []);
 
   return (
-    <section className="relative flex min-h-svh w-full flex-col">
+    <section className="relative w-full">
       {showLanyard && (
         <Suspense fallback={null}>
           <Lanyard
-            className="pointer-events-none absolute inset-0"
+            className="absolute inset-0 z-50"
             style={{ height: "100svh" }}
           />
         </Suspense>
       )}
 
-      <div className="centered flex flex-1 flex-col justify-center py-20">
-        <LazyMotion features={domAnimation}>
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <m.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="text-balance text-[clamp(2.5rem,9vw,4.75rem)] font-bold leading-[1.05] tracking-[-0.03em]"
+      <div className="relative z-40">
+        <div className="centered section">
+          <LazyMotion features={domAnimation}>
+            <div className="flex items-start justify-between gap-6 pt-6 sm:pt-8">
+              <div className="pointer-events-auto min-w-0">
+                <m.h1
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="text-balance text-[clamp(2.75rem,7vw,4.75rem)] font-bold tracking-[-0.03em]"
+                >
+                  {data.name}
+                </m.h1>
+                <m.p
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.15 }}
+                  className="mt-2 text-balance text-sm text-(--color-text-secondary) sm:text-base"
+                >
+                  {data.tagline}
+                </m.p>
+              </div>
+
+              <m.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="pointer-events-auto shrink-0"
               >
-                {data.name}
-              </m.h1>
-              <m.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.15 }}
-                className="mt-3 text-balance text-base text-(--color-text-secondary) sm:text-lg"
-              >
-                {data.tagline}
-              </m.p>
+                <ThemeToggle />
+              </m.div>
             </div>
 
-            <m.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="shrink-0"
+            <m.nav
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              aria-label="Social links"
+              className="pointer-events-auto mt-2 flex flex-wrap items-center gap-2 text-xs text-(--color-text-secondary) sm:gap-3 sm:text-sm"
             >
-              <ThemeToggle />
-            </m.div>
-          </div>
-
-          <m.nav
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            aria-label="Social links"
-            className="mt-8 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3"
-          >
-            {data.socials.map((s, i) => (
-              <m.div
-                key={s.href}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
-              >
-                <TextLink
-                  href={s.href}
-                  ariaLabel={`Open ${s.label} profile (opens in a new tab)`}
-                  className="inline-flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm row-hover sm:w-auto sm:gap-2 sm:px-3 sm:py-2"
+              {data.socials.map((s, i) => (
+                <m.div
+                  key={s.href}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 + i * 0.1 }}
                 >
-                  <m.span
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)"
+                  <TextLink
+                    href={s.href}
+                    ariaLabel={`Open ${s.label} profile (opens in a new tab)`}
+                    className="inline-flex items-center gap-2 rounded-lg px-3 py-2 row-hover"
                   >
-                    <BrandIcon name={s.icon} size={14} />
-                  </m.span>
-                  <span className="font-medium">{s.label}</span>
-                </TextLink>
+                    <m.span
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                      whileTap={{ scale: 0.9 }}
+                      className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-(--color-border-subtle) bg-(--color-card)"
+                    >
+                      <BrandIcon name={s.icon} size={14} />
+                    </m.span>
+                    <span className="font-medium">{s.label}</span>
+                  </TextLink>
+                </m.div>
+              ))}
+            </m.nav>
+
+            {data.experiences.length > 0 && (
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="pointer-events-auto mt-6 sm:mt-8"
+              >
+                <div className="section-title">Experiences</div>
+                <Experiences items={data.experiences} />
               </m.div>
-            ))}
-          </m.nav>
-        </LazyMotion>
+            )}
+          </LazyMotion>
+        </div>
       </div>
     </section>
   );
