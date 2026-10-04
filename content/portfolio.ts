@@ -1,7 +1,7 @@
 import type { PortfolioData } from "./schema";
 
 const PERSON_NAME = "Fariz Wibisono";
-const TAGLINE = "Full Stack Software Engineer";
+const TAGLINE = "Software Engineer";
 
 export const portfolio: PortfolioData = {
   name: PERSON_NAME,
