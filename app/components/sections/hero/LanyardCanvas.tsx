@@ -118,15 +118,13 @@ function LanyardRig({
     const fixed = useRef<RapierRigidBody>(null!);
     const j1 = useRef<RapierRigidBody & { lerped?: THREE.Vector3 }>(null!);
     const j2 = useRef<RapierRigidBody & { lerped?: THREE.Vector3 }>(null!);
-    const j3 = useRef<RapierRigidBody>(null!);
+    const j3 = useRef<RapierRigidBody & { lerped?: THREE.Vector3 }>(null!);
     const card = useRef<RapierRigidBody>(null!);
 
     const vec = new THREE.Vector3();
     const ang = new THREE.Vector3();
     const rot = new THREE.Vector3();
     const dir = new THREE.Vector3();
-    const _quat = new THREE.Quaternion();
-    const _upright = new THREE.Quaternion();
 
     const px = position[0];
     const py = position[1];
@@ -265,39 +263,12 @@ function LanyardRig({
             dir.copy(vec).sub(state.camera.position).normalize();
             vec.add(dir.multiplyScalar(state.camera.position.length()));
 
-            const anchor = fixed.current.translation();
-            // Clamp to the rope's max reach, like a real lanyard:
-            // 3 rope segments of 1s + 1.45s spherical joint offset
-            const maxReach = 4.45 * s;
-            let tx = vec.x - dragged.x - anchor.x;
-            let ty = vec.y - dragged.y - anchor.y;
-            let tz = vec.z - dragged.z - anchor.z;
-            const dist = Math.hypot(tx, ty, tz);
-            if (dist > maxReach) {
-                const k = maxReach / dist;
-                tx *= k;
-                ty *= k;
-                tz *= k;
-            }
-
-            // Smooth-follow the pointer instead of teleporting to it.
-            // Raw pointer jitter is what made the rope joints oscillate —
-            // easing the target kills the wiggle at its source.
-            const cp = card.current.translation();
-            const follow = 1 - Math.exp(-14 * delta);
+            [card, j1, j2, j3, fixed].forEach((ref) => ref.current.wakeUp());
             card.current.setNextKinematicTranslation({
-                x: cp.x + (anchor.x + tx - cp.x) * follow,
-                y: cp.y + (anchor.y + ty - cp.y) * follow,
-                z: cp.z + (anchor.z + tz - cp.z) * follow,
+                x: vec.x - dragged.x,
+                y: vec.y - dragged.y,
+                z: vec.z - dragged.z,
             });
-
-            // Keep the card upright while dragging
-            const r = card.current.rotation();
-            _quat.set(r.x, r.y, r.z, r.w);
-            _quat.slerp(_upright, 1 - Math.exp(-8 * delta));
-            card.current.setNextKinematicRotation(_quat);
-
-            [j1, j2, j3].forEach((ref) => ref.current?.wakeUp());
         }
 
         {
@@ -316,8 +287,10 @@ function LanyardRig({
                 }
             }
 
-            // Fix most of the jitter when over pulling the card
-            [j1.current, j2.current].forEach((body) => {
+            // Smooth all rope segments including j3 (the end near the card).
+            // j3 was previously drawn raw from physics — its high-frequency
+            // jitter is what made the rope end look wiggly after release.
+            [j1.current, j2.current, j3.current].forEach((body) => {
                 if (!body.lerped) body.lerped = new THREE.Vector3().copy(body.translation());
 
                 const clampedDistance = Math.max(
@@ -334,7 +307,7 @@ function LanyardRig({
             });
 
             // Calculate catmul curve with reduced resolution for performance
-            curve.points[0].copy(j3.current.translation());
+            curve.points[0].copy(j3.current.lerped!);
             curve.points[1].copy(j2.current.lerped!);
             curve.points[2].copy(j1.current.lerped!);
             curve.points[3].copy(fixed.current.translation());
