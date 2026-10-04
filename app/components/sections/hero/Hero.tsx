@@ -1,21 +1,21 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { TextLink } from "../ui/TextLink";
-import type { PortfolioData } from "../../../data/portfolio";
-import { BrandIcon } from "../icons/BrandIcon";
+import { TextLink } from "../../ui/TextLink";
+import type { PortfolioData } from "../../../../content/schema";
+import { BrandIcon } from "../../icons/BrandIcon";
 import { useCallback, useState, useEffect, Suspense } from "react";
 import { domAnimation, LazyMotion, m } from "framer-motion";
 
 // Dynamically import heavy components to reduce initial JS bundle
 // Lanyard: ~500KB+ of Three.js/R3F code
-const Lanyard = dynamic(() => import("../Lanyard"), {
+const Lanyard = dynamic(() => import("./LanyardCanvas"), {
   ssr: false,
 });
 
 // ThemeToggle - not critical for LCP
 const ThemeToggle = dynamic(
-  () => import("../theme/ThemeToggle").then(m => ({ default: m.ThemeToggle })),
+  () => import("../../theme/ThemeToggle").then(m => ({ default: m.ThemeToggle })),
   { ssr: false }
 );
 

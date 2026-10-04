@@ -1,5 +1,5 @@
-import type { OpenSourceItem } from "../../../data/portfolio";
-import { TextLink } from "../ui/TextLink";
+import type { OpenSourceItem } from "../../../../content/schema";
+import { TextLink } from "../../ui/TextLink";
 
 function formatStars(stars: number) {
   if (stars >= 1000) return `${(stars / 1000).toFixed(1)}k`;

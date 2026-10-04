@@ -1,6 +1,6 @@
 "use client";
 
-import type { Experience } from "../../../data/portfolio";
+import type { Experience } from "../../../../content/schema";
 import { useEffect, useState, useCallback } from "react";
 
 type ExperiencesProps = {

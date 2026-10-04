@@ -1,8 +1,8 @@
 "use client";
 
-import type { Project } from "../../../data/portfolio";
-import { BrandIcon } from "../icons/BrandIcon";
-import { TechIcon } from "../icons/TechIcon";
+import type { Project } from "../../../../content/schema";
+import { BrandIcon } from "../../icons/BrandIcon";
+import { TechIcon } from "../../icons/TechIcon";
 import { domAnimation, LazyMotion, m } from "framer-motion";
 
 function ProjectCard({ project }: { project: Project }) {

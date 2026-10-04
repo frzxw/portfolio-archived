@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/theme/Providers";
-import { portfolio } from "@/data/portfolio";
+import { portfolio } from "@/content/portfolio";
 
 // Optimized font loading for fastest mobile LCP
 // Using 'optional' + no preload = instant text rendering with system font

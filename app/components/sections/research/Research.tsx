@@ -1,5 +1,5 @@
-import type { ResearchItem } from "../../../data/portfolio";
-import { TextLink } from "../ui/TextLink";
+import type { ResearchItem } from "../../../../content/schema";
+import { TextLink } from "../../ui/TextLink";
 
 type ResearchProps = {
   items: ResearchItem[];
