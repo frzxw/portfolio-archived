@@ -232,16 +232,6 @@ function LanyardRig({
         };
     }, [dragged]);
 
-    // While dragging, damp the rope segments hard so the rope follows the
-    // card taut instead of oscillating behind it
-    useEffect(() => {
-        const d = dragged ? 14 : 4;
-        [j1, j2, j3].forEach((ref) => {
-            ref.current?.setLinearDamping(d);
-            ref.current?.setAngularDamping(d);
-        });
-    }, [dragged]);
-
     // Tab switch: never get stuck mid-drag, and snap the visual rope to the
     // physics bodies on return. After a tab switch the next frame delta is
     // huge; without the snap the rope lerps with an overshooting alpha and
@@ -268,35 +258,78 @@ function LanyardRig({
         // Request a new frame when physics is active (for demand frameloop)
         invalidate();
 
-        if (dragged && card.current) {
+        if (!fixed.current || !card.current || !j1.current || !j2.current || !j3.current) return;
+
+        if (dragged) {
+            // --- Drag mode: procedural taut rope (no joint simulation) ---
+            // A real lanyard pulled by hand goes straight and taut — the rope
+            // joints would go slack and snap, which is what caused the wiggle.
             vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
             dir.copy(vec).sub(state.camera.position).normalize();
             vec.add(dir.multiplyScalar(state.camera.position.length()));
 
-            [card, j1, j2, j3, fixed].forEach((ref) => ref.current.wakeUp());
-            card.current.setNextKinematicTranslation({
-                x: vec.x - dragged.x,
-                y: vec.y - dragged.y,
-                z: vec.z - dragged.z,
+            const anchor = fixed.current.translation();
+            // Clamp the card to the rope's max reach, like a real lanyard:
+            // 3 rope segments of 1s + 1.45s spherical joint offset
+            const maxReach = 4.45 * s;
+            let dx = vec.x - dragged.x - anchor.x;
+            let dy = vec.y - dragged.y - anchor.y;
+            let dz = vec.z - dragged.z - anchor.z;
+            const dist = Math.hypot(dx, dy, dz);
+            if (dist > maxReach) {
+                const k = maxReach / dist;
+                dx *= k;
+                dy *= k;
+                dz *= k;
+            }
+            const cx = anchor.x + dx;
+            const cy = anchor.y + dy;
+            const cz = anchor.z + dz;
+
+            card.current.setNextKinematicTranslation({ x: cx, y: cy, z: cz });
+            j1.current.setNextKinematicTranslation({
+                x: anchor.x + dx * 0.25,
+                y: anchor.y + dy * 0.25,
+                z: anchor.z + dz * 0.25,
+            });
+            j2.current.setNextKinematicTranslation({
+                x: anchor.x + dx * 0.5,
+                y: anchor.y + dy * 0.5,
+                z: anchor.z + dz * 0.5,
+            });
+            j3.current.setNextKinematicTranslation({
+                x: anchor.x + dx * 0.75,
+                y: anchor.y + dy * 0.75,
+                z: anchor.z + dz * 0.75,
             });
 
-            // Ease the card back to upright while dragging — kills the
-            // unnatural wobble without making it feel stiff
+            // Keep the card upright while dragging
             const r = card.current.rotation();
             _quat.set(r.x, r.y, r.z, r.w);
             _quat.slerp(_upright, 1 - Math.exp(-8 * delta));
             card.current.setNextKinematicRotation(_quat);
+
+            // Draw the rope exactly through the segments — no lag, no rubber-banding
+            curve.points[0].set(anchor.x + dx * 0.75, anchor.y + dy * 0.75, anchor.z + dz * 0.75);
+            curve.points[1].set(anchor.x + dx * 0.5, anchor.y + dy * 0.5, anchor.z + dz * 0.5);
+            curve.points[2].set(anchor.x + dx * 0.25, anchor.y + dy * 0.25, anchor.z + dz * 0.25);
+            curve.points[3].copy(anchor);
+            band.current.geometry.setPoints(curve.getPoints(16));
+
+            // Keep the smoothing state in sync for a seamless handoff on release
+            j1.current.lerped?.set(anchor.x + dx * 0.25, anchor.y + dy * 0.25, anchor.z + dz * 0.25);
+            j2.current.lerped?.set(anchor.x + dx * 0.5, anchor.y + dy * 0.5, anchor.z + dz * 0.5);
+            return;
         }
 
-        if (fixed.current) {
-            if (!card.current || !j1.current || !j2.current || !j3.current) return;
-
+        // --- Free mode: joint physics ---
+        {
             const cardBody = card.current;
             const isCardSleeping = cardBody.isSleeping?.() ?? false;
 
             // Hard cap on swing velocity — prevents wild flings after drags.
             // The rope stays playful but can never build up extreme momentum.
-            if (!dragged && !isCardSleeping) {
+            if (!isCardSleeping) {
                 const lv = cardBody.linvel();
                 const speed = Math.hypot(lv.x, lv.y, lv.z);
                 const MAX_SWING_SPEED = 9;
@@ -331,7 +364,7 @@ function LanyardRig({
             band.current.geometry.setPoints(curve.getPoints(16));
 
             // Tilt it back towards the screen
-            if (!dragged && !isCardSleeping) {
+            if (!isCardSleeping) {
                 ang.copy(cardBody.angvel());
                 rot.copy(cardBody.rotation());
                 const targetY = ang.y - rot.y * 0.25;
@@ -353,15 +386,15 @@ function LanyardRig({
                 <RigidBody ref={fixed} {...segmentProps} type="fixed" position={sp(0, 0, 0)} />
 
                 {/* Start hanging straight down so there's no initial swing */}
-                <RigidBody position={sp(0, -1, 0)} ref={j1} {...segmentProps}>
+                <RigidBody position={sp(0, -1, 0)} ref={j1} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(0, -2, 0)} ref={j2} {...segmentProps}>
+                <RigidBody position={sp(0, -2, 0)} ref={j2} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(0, -3, 0)} ref={j3} {...segmentProps}>
+                <RigidBody position={sp(0, -3, 0)} ref={j3} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
