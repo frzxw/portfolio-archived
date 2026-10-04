@@ -40,7 +40,7 @@ const sectionData: Record<SectionId, unknown[]> = {
 };
 
 export function PortfolioPage() {
-  const activeSections = sections.filter((s) => s.visible && s.hasContent(portfolio));
+  const activeSections = sections.filter((s) => s.visible);
 
   return (
     <main className="min-h-screen">
@@ -48,9 +48,16 @@ export function PortfolioPage() {
 
       {activeSections.map((s) => {
         const Body = sectionComponents[s.id];
+        const items = sectionData[s.id] as never[];
         return (
           <Section key={s.id} title={s.title}>
-            <Body items={sectionData[s.id] as never[]} />
+            {s.hasContent(portfolio) ? (
+              <Body items={items} />
+            ) : (
+              <p className="px-4 py-3 text-sm text-(--color-text-secondary)">
+                {s.placeholder}
+              </p>
+            )}
           </Section>
         );
       })}
