@@ -261,46 +261,34 @@ function LanyardRig({
         if (!fixed.current || !card.current || !j1.current || !j2.current || !j3.current) return;
 
         if (dragged) {
-            // --- Drag mode: procedural taut rope (no joint simulation) ---
-            // A real lanyard pulled by hand goes straight and taut — the rope
-            // joints would go slack and snap, which is what caused the wiggle.
             vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
             dir.copy(vec).sub(state.camera.position).normalize();
             vec.add(dir.multiplyScalar(state.camera.position.length()));
 
             const anchor = fixed.current.translation();
-            // Clamp the card to the rope's max reach, like a real lanyard:
+            // Clamp to the rope's max reach, like a real lanyard:
             // 3 rope segments of 1s + 1.45s spherical joint offset
             const maxReach = 4.45 * s;
-            let dx = vec.x - dragged.x - anchor.x;
-            let dy = vec.y - dragged.y - anchor.y;
-            let dz = vec.z - dragged.z - anchor.z;
-            const dist = Math.hypot(dx, dy, dz);
+            let tx = vec.x - dragged.x - anchor.x;
+            let ty = vec.y - dragged.y - anchor.y;
+            let tz = vec.z - dragged.z - anchor.z;
+            const dist = Math.hypot(tx, ty, tz);
             if (dist > maxReach) {
                 const k = maxReach / dist;
-                dx *= k;
-                dy *= k;
-                dz *= k;
+                tx *= k;
+                ty *= k;
+                tz *= k;
             }
-            const cx = anchor.x + dx;
-            const cy = anchor.y + dy;
-            const cz = anchor.z + dz;
 
-            card.current.setNextKinematicTranslation({ x: cx, y: cy, z: cz });
-            j1.current.setNextKinematicTranslation({
-                x: anchor.x + dx * 0.25,
-                y: anchor.y + dy * 0.25,
-                z: anchor.z + dz * 0.25,
-            });
-            j2.current.setNextKinematicTranslation({
-                x: anchor.x + dx * 0.5,
-                y: anchor.y + dy * 0.5,
-                z: anchor.z + dz * 0.5,
-            });
-            j3.current.setNextKinematicTranslation({
-                x: anchor.x + dx * 0.75,
-                y: anchor.y + dy * 0.75,
-                z: anchor.z + dz * 0.75,
+            // Smooth-follow the pointer instead of teleporting to it.
+            // Raw pointer jitter is what made the rope joints oscillate —
+            // easing the target kills the wiggle at its source.
+            const cp = card.current.translation();
+            const follow = 1 - Math.exp(-14 * delta);
+            card.current.setNextKinematicTranslation({
+                x: cp.x + (anchor.x + tx - cp.x) * follow,
+                y: cp.y + (anchor.y + ty - cp.y) * follow,
+                z: cp.z + (anchor.z + tz - cp.z) * follow,
             });
 
             // Keep the card upright while dragging
@@ -309,27 +297,16 @@ function LanyardRig({
             _quat.slerp(_upright, 1 - Math.exp(-8 * delta));
             card.current.setNextKinematicRotation(_quat);
 
-            // Draw the rope exactly through the segments — no lag, no rubber-banding
-            curve.points[0].set(anchor.x + dx * 0.75, anchor.y + dy * 0.75, anchor.z + dz * 0.75);
-            curve.points[1].set(anchor.x + dx * 0.5, anchor.y + dy * 0.5, anchor.z + dz * 0.5);
-            curve.points[2].set(anchor.x + dx * 0.25, anchor.y + dy * 0.25, anchor.z + dz * 0.25);
-            curve.points[3].copy(anchor);
-            band.current.geometry.setPoints(curve.getPoints(16));
-
-            // Keep the smoothing state in sync for a seamless handoff on release
-            j1.current.lerped?.set(anchor.x + dx * 0.25, anchor.y + dy * 0.25, anchor.z + dz * 0.25);
-            j2.current.lerped?.set(anchor.x + dx * 0.5, anchor.y + dy * 0.5, anchor.z + dz * 0.5);
-            return;
+            [j1, j2, j3].forEach((ref) => ref.current?.wakeUp());
         }
 
-        // --- Free mode: joint physics ---
         {
             const cardBody = card.current;
             const isCardSleeping = cardBody.isSleeping?.() ?? false;
 
             // Hard cap on swing velocity — prevents wild flings after drags.
             // The rope stays playful but can never build up extreme momentum.
-            if (!isCardSleeping) {
+            if (!dragged && !isCardSleeping) {
                 const lv = cardBody.linvel();
                 const speed = Math.hypot(lv.x, lv.y, lv.z);
                 const MAX_SWING_SPEED = 9;
@@ -364,7 +341,7 @@ function LanyardRig({
             band.current.geometry.setPoints(curve.getPoints(16));
 
             // Tilt it back towards the screen
-            if (!isCardSleeping) {
+            if (!dragged && !isCardSleeping) {
                 ang.copy(cardBody.angvel());
                 rot.copy(cardBody.rotation());
                 const targetY = ang.y - rot.y * 0.25;
@@ -386,15 +363,15 @@ function LanyardRig({
                 <RigidBody ref={fixed} {...segmentProps} type="fixed" position={sp(0, 0, 0)} />
 
                 {/* Start hanging straight down so there's no initial swing */}
-                <RigidBody position={sp(0, -1, 0)} ref={j1} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+                <RigidBody position={sp(0, -1, 0)} ref={j1} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(0, -2, 0)} ref={j2} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+                <RigidBody position={sp(0, -2, 0)} ref={j2} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
-                <RigidBody position={sp(0, -3, 0)} ref={j3} {...segmentProps} type={dragged ? "kinematicPosition" : "dynamic"}>
+                <RigidBody position={sp(0, -3, 0)} ref={j3} {...segmentProps}>
                     <BallCollider args={[0.1 * s]} />
                 </RigidBody>
 
