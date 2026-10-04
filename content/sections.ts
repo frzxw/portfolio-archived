@@ -1,6 +1,7 @@
 import type { PortfolioData } from "./schema";
 
 export type SectionId =
+  | "experience"
   | "research"
   | "projects"
   | "apps"
@@ -25,6 +26,13 @@ export type SectionDef = {
  * Empty sections render their `placeholder` instead of disappearing.
  */
 export const sections: SectionDef[] = [
+  {
+    id: "experience",
+    title: "Experience",
+    visible: true,
+    placeholder: "Experience coming soon.",
+    hasContent: (d) => d.experiences.length > 0,
+  },
   {
     id: "research",
     title: "Research",

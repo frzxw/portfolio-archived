@@ -6,6 +6,10 @@ import { Section } from "./ui/Section";
 
 // Lazy load below-the-fold content to improve LCP
 const sectionComponents: Record<SectionId, React.ComponentType<{ items: never[] }>> = {
+  experience: dynamic(
+    () => import("./sections/experience/Experiences").then((m) => ({ default: m.Experiences })),
+    { loading: () => <div className="h-48" /> }
+  ) as React.ComponentType<{ items: never[] }>,
   research: dynamic(
     () => import("./sections/research/Research").then((m) => ({ default: m.Research })),
     { loading: () => <div className="h-32" /> }
@@ -32,6 +36,7 @@ const sectionComponents: Record<SectionId, React.ComponentType<{ items: never[] 
 };
 
 const sectionData: Record<SectionId, unknown[]> = {
+  experience: portfolio.experiences,
   research: portfolio.research,
   projects: portfolio.projects,
   apps: portfolio.apps,

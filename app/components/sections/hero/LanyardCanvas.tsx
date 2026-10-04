@@ -125,6 +125,8 @@ function LanyardRig({
     const ang = new THREE.Vector3();
     const rot = new THREE.Vector3();
     const dir = new THREE.Vector3();
+    const _quat = new THREE.Quaternion();
+    const _upright = new THREE.Quaternion();
 
     const px = position[0];
     const py = position[1];
@@ -230,6 +232,38 @@ function LanyardRig({
         };
     }, [dragged]);
 
+    // While dragging, damp the rope segments hard so the rope follows the
+    // card taut instead of oscillating behind it
+    useEffect(() => {
+        const d = dragged ? 14 : 4;
+        [j1, j2, j3].forEach((ref) => {
+            ref.current?.setLinearDamping(d);
+            ref.current?.setAngularDamping(d);
+        });
+    }, [dragged]);
+
+    // Tab switch: never get stuck mid-drag, and snap the visual rope to the
+    // physics bodies on return. After a tab switch the next frame delta is
+    // huge; without the snap the rope lerps with an overshooting alpha and
+    // looks yanked from above.
+    useEffect(() => {
+        const onVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                drag(false);
+                return;
+            }
+            [j1, j2, j3].forEach((ref) => {
+                const body = ref.current as unknown as {
+                    lerped?: THREE.Vector3;
+                    translation(): THREE.Vector3;
+                } | null;
+                body?.lerped?.copy(body.translation());
+            });
+        };
+        document.addEventListener("visibilitychange", onVisibilityChange);
+        return () => document.removeEventListener("visibilitychange", onVisibilityChange);
+    }, []);
+
     useFrame((state, delta) => {
         // Request a new frame when physics is active (for demand frameloop)
         invalidate();
@@ -245,6 +279,13 @@ function LanyardRig({
                 y: vec.y - dragged.y,
                 z: vec.z - dragged.z,
             });
+
+            // Ease the card back to upright while dragging — kills the
+            // unnatural wobble without making it feel stiff
+            const r = card.current.rotation();
+            _quat.set(r.x, r.y, r.z, r.w);
+            _quat.slerp(_upright, 1 - Math.exp(-8 * delta));
+            card.current.setNextKinematicRotation(_quat);
         }
 
         if (fixed.current) {
@@ -276,7 +317,9 @@ function LanyardRig({
 
                 body.lerped.lerp(
                     body.translation(),
-                    delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed)),
+                    // Clamp alpha to 1: after a tab switch the frame delta is
+                    // huge and an overshooting lerp flings the rope visually
+                    Math.min(1, delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))),
                 );
             });
 

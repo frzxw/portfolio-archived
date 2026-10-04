@@ -19,14 +19,8 @@ const ThemeToggle = dynamic(
   { ssr: false }
 );
 
-// Experiences has interaction handlers - defer loading
-const Experiences = dynamic(
-  () => import("./Experiences").then(m => ({ default: m.Experiences })),
-  { ssr: false, loading: () => <div className="h-48 animate-pulse" /> }
-);
-
 type HeroProps = {
-  data: Pick<PortfolioData, "name" | "tagline" | "socials" | "experiences">;
+  data: Pick<PortfolioData, "name" | "tagline" | "socials">;
 };
 
 // Check if device is mobile/tablet (< 768px)
@@ -136,18 +130,6 @@ export function Hero({ data }: HeroProps) {
                 </m.div>
               ))}
             </m.nav>
-
-            {data.experiences.length > 0 && (
-              <m.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="pointer-events-auto mt-6 sm:mt-8"
-              >
-                <div className="section-title">Experiences</div>
-                <Experiences items={data.experiences} />
-              </m.div>
-            )}
           </LazyMotion>
         </div>
       </div>
