@@ -63,17 +63,49 @@ type InfiniteProjectsCarouselProps = {
   items: Project[];
 };
 
+function PlaceholderCard() {
+  return (
+    <div
+      aria-hidden="true"
+      className="card flex h-72 w-72 shrink-0 flex-col p-4 sm:h-80 sm:w-80"
+    >
+      <div className="h-5 w-2/3 animate-pulse rounded bg-(--color-border-subtle)" />
+      <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-(--color-border-subtle)" />
+      <div className="mt-3 space-y-2">
+        <div className="h-3 w-full animate-pulse rounded bg-(--color-border-subtle)" />
+        <div className="h-3 w-5/6 animate-pulse rounded bg-(--color-border-subtle)" />
+        <div className="h-3 w-4/6 animate-pulse rounded bg-(--color-border-subtle)" />
+      </div>
+      <div className="mt-auto flex gap-2 pt-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="h-8 w-8 animate-pulse rounded-full border border-(--color-border-subtle) bg-(--color-card)"
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function InfiniteProjectsCarousel({ items }: InfiniteProjectsCarouselProps) {
+  // Empty state: show skeleton cards in the infinite carousel
+  const cards: (Project | number)[] =
+    items.length > 0 ? items : [0, 1, 2, 3, 4, 5];
   // Only duplicate twice (not 3x) to reduce DOM size
-  const repeated = [...items, ...items];
+  const repeated = [...cards, ...cards];
 
   return (
     <LazyMotion features={domAnimation}>
       <div className="marquee -mx-4 py-4 sm:-mx-6 sm:py-6">
         <div className="marqueeTrack flex gap-3 px-4 sm:gap-4 sm:px-6">
-          {repeated.map((p, idx) => (
-            <ProjectCard key={`${p.href}-${idx}`} project={p} />
-          ))}
+          {repeated.map((p, idx) =>
+            typeof p === "number" ? (
+              <PlaceholderCard key={`placeholder-${idx}`} />
+            ) : (
+              <ProjectCard key={`${p.href}-${idx}`} project={p} />
+            )
+          )}
         </div>
       </div>
     </LazyMotion>

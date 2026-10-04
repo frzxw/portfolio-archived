@@ -14,6 +14,8 @@ export type SectionDef = {
   visible: boolean;
   /** shown when the section has no content yet */
   placeholder: string;
+  /** render the component even when empty (component handles its own empty state) */
+  renderWhenEmpty?: boolean;
   hasContent: (data: PortfolioData) => boolean;
 };
 
@@ -35,6 +37,7 @@ export const sections: SectionDef[] = [
     title: "Projects",
     visible: true,
     placeholder: "Projects coming soon.",
+    renderWhenEmpty: true,
     hasContent: (d) => d.projects.length > 0,
   },
   {

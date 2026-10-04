@@ -49,14 +49,15 @@ export function PortfolioPage() {
       {activeSections.map((s) => {
         const Body = sectionComponents[s.id];
         const items = sectionData[s.id] as never[];
+        const isEmpty = !s.hasContent(portfolio);
         return (
           <Section key={s.id} title={s.title}>
-            {s.hasContent(portfolio) ? (
-              <Body items={items} />
-            ) : (
+            {isEmpty && !s.renderWhenEmpty ? (
               <p className="px-4 py-3 text-sm text-(--color-text-secondary)">
                 {s.placeholder}
               </p>
+            ) : (
+              <Body items={items} />
             )}
           </Section>
         );
