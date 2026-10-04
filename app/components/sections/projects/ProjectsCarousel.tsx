@@ -67,22 +67,11 @@ function PlaceholderCard() {
   return (
     <div
       aria-hidden="true"
-      className="card flex h-72 w-72 shrink-0 flex-col p-4 sm:h-80 sm:w-80"
+      className="card flex h-72 w-72 shrink-0 flex-col items-center justify-center p-4 text-center sm:h-80 sm:w-80"
     >
-      <div className="h-5 w-2/3 animate-pulse rounded bg-(--color-border-subtle)" />
-      <div className="mt-2 h-3 w-1/2 animate-pulse rounded bg-(--color-border-subtle)" />
-      <div className="mt-3 space-y-2">
-        <div className="h-3 w-full animate-pulse rounded bg-(--color-border-subtle)" />
-        <div className="h-3 w-5/6 animate-pulse rounded bg-(--color-border-subtle)" />
-        <div className="h-3 w-4/6 animate-pulse rounded bg-(--color-border-subtle)" />
-      </div>
-      <div className="mt-auto flex gap-2 pt-4">
-        {[0, 1, 2, 3].map((i) => (
-          <div
-            key={i}
-            className="h-8 w-8 animate-pulse rounded-full border border-(--color-border-subtle) bg-(--color-card)"
-          />
-        ))}
+      <div className="text-lg font-semibold">Project coming soon.</div>
+      <div className="mt-2 max-w-56 text-sm text-(--color-text-secondary)">
+        This slot is reserved for a future project.
       </div>
     </div>
   );
